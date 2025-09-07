@@ -1,0 +1,580 @@
+WEEK 2 Scenario based questions ANSWER 
+( Note: check with question for answer, not with question number for answer)
+Scenario based questions on Basic git commands
+1. You modified a file but want to undo the changes before staging it.
+Question:
+You made changes to main.py but haven’t staged them yet. You realize they were a mistake. What Git command will you use to discard the local changes?
+✅ Concept: Discarding unstaged changes
+💬 Expected Answer:
+bash
+CopyEdit
+git checkout -- main.py
+or in modern Git:
+bash
+CopyEdit
+git restore main.py
+
+🔹 2. You staged changes but want to unstage them.
+Question:
+You accidentally ran git add file1.txt, but you’re not ready to commit yet. How do you remove it from the staging area without losing the changes?
+✅ Concept: Unstaging files
+💬 Expected Answer:
+bash
+CopyEdit
+git reset file1.txt
+or:
+bash
+CopyEdit
+git restore --staged file1.txt
+
+🔹 3. You committed with the wrong message.
+Question:
+You made a commit but typed the wrong commit message. You haven’t pushed it yet. How do you fix it?
+✅ Concept: Amending commits
+💬 Expected Answer:
+bash
+CopyEdit
+git commit --amend -m "Corrected commit message"
+
+🔹 4. You want to see the history of changes.
+Question:
+You want to view the commit history of the current branch in a readable format. What Git command should you use?
+✅ Concept: Viewing commit history
+💬 Expected Answer:
+bash
+CopyEdit
+git log --oneline
+or:
+bash
+CopyEdit
+git log
+
+🔹 5. You cloned a repo but forgot to set your username/email.
+Question:
+After cloning a repo, how can you set your name and email globally for all Git repositories?
+✅ Concept: Git configuration
+💬 Expected Answer:
+bash
+CopyEdit
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+
+🔹 6. You want to check what has changed but not staged yet.
+Question:
+You’ve made some edits to your files but haven’t staged them. How can you view the changes?
+✅ Concept: Checking file differences
+💬 Expected Answer:
+bash
+CopyEdit
+git diff
+
+🔹 7. You want to switch to another branch.
+Question:
+You’re on the main branch but need to switch to feature/login. What command do you use?
+✅ Concept: Branch navigation
+💬 Expected Answer:
+bash
+CopyEdit
+git checkout feature/login
+or:
+bash
+CopyEdit
+git switch feature/login
+
+🔹 8. You accidentally deleted a branch locally.
+Question:
+You deleted the feature-ui branch by mistake. You haven’t pushed the deletion. How can you recover it?
+✅ Concept: Recovering deleted branches
+💬 Expected Answer:
+bash
+CopyEdit
+git reflog
+git checkout -b feature-ui <commit_hash>
+
+🔹 9. You want to push your local commits to the remote repo.
+Question:
+You’ve made some commits locally and now want to upload them to the remote repository. What do you run?
+✅ Concept: Pushing commits
+💬 Expected Answer:
+bash
+CopyEdit
+git push origin <branch-name>
+
+🔹 10. You want to download the latest changes from the remote without merging.
+Question:
+How can you fetch the latest changes from the remote repository without merging them automatically?
+✅ Concept: Fetching updates
+💬 Expected Answer:
+bash
+CopyEdit
+git fetch origin
+
+11. You want to create a new branch and switch to it immediately.
+Question:
+You’re on the main branch and want to start working on a new feature called search-filter. What command do you use?
+✅ Concept: Branch creation and switching
+💬 Expected Answer:
+bash
+CopyEdit
+git checkout -b search-filter
+or in modern Git:
+bash
+CopyEdit
+git switch -c search-filter
+
+🔹 12. You accidentally committed a sensitive file. You want to remove it from Git history.
+Question:
+You committed a file containing an API key and want to completely remove it from the repo's history. What should you do?
+✅ Concept: Removing sensitive data
+💬 Expected Answer:
+Use tools like git filter-branch or BFG Repo-Cleaner to scrub the history.
+For example:
+bash
+CopyEdit
+git filter-branch --force --index-filter \
+  "git rm --cached --ignore-unmatch secrets.txt" \
+  --prune-empty --tag-name-filter cat -- --all
+
+🔹 13. You want to list all local and remote branches.
+Question:
+You want to see all the branches that exist both locally and on the remote. What command do you use?
+✅ Concept: Branch listing
+💬 Expected Answer:
+bash
+CopyEdit
+git branch -a
+
+🔹 14. You want to merge changes from another branch.
+Question:
+You’re on main and want to merge the completed feature/signup branch into it. What command do you use?
+✅ Concept: Merging branches
+💬 Expected Answer:
+bash
+CopyEdit
+git merge feature/signup
+
+🔹 15. You want to resolve a merge conflict manually.
+Question:
+You tried to merge two branches and Git reported a conflict in app.js. What are the general steps to resolve it?
+✅ Concept: Conflict resolution
+💬 Expected Answer:
+Open app.js and resolve the conflict markers (<<<<<<<, =======, >>>>>>>)
+After resolving:
+bash
+CopyEdit
+git add app.js
+git commit  # If Git didn’t auto-create a merge commit
+
+🔹 16. You want to ignore some files from tracking.
+Question:
+You don’t want Git to track changes to .log files or node_modules/. How do you achieve this?
+✅ Concept: .gitignore
+💬 Expected Answer:
+Create or edit a .gitignore file:
+bash
+CopyEdit
+*.log
+node_modules/
+
+🔹 17. You want to see who changed a particular line in a file.
+Question:
+You're investigating a bug and want to know who last changed line 25 in script.py. What command do you use?
+✅ Concept: Blame
+💬 Expected Answer:
+bash
+CopyEdit
+git blame script.py
+
+🔹 18. You want to stash your changes temporarily.
+Question:
+You’re in the middle of working on a file but need to switch branches quickly. What do you do to save your work?
+✅ Concept: Stashing
+💬 Expected Answer:
+bash
+CopyEdit
+git stash
+git checkout other-branch
+
+🔹 19. You want to apply your last stash.
+Question:
+You previously ran git stash and now want to restore those changes. What command do you use?
+✅ Concept: Applying stashed changes
+💬 Expected Answer:
+bash
+CopyEdit
+git stash apply
+
+🔹 20. You want to delete a local branch.
+Question:
+The feature/test branch is no longer needed. How do you delete it locally?
+✅ Concept: Deleting branches
+💬 Expected Answer:
+bash
+CopyEdit
+git branch -d feature/test
+Use -D to force-delete if it hasn't been merged.
+
+✅ Quick Summary
+Task
+Command
+Delete local branch (safe)
+git branch -d feature-ui
+Delete local branch (force)
+git branch -D feature-ui
+Delete remote branch
+git push origin --delete feature-ui
+
+
+Scenario 1: Delete a fully merged local branch
+Question:
+You just merged the feature-ui branch into main. You want to clean up your local branches. How do you safely delete feature-ui?
+✅ Expected Answer:
+bash
+CopyEdit
+git branch -d feature-ui
+Explanation:
+-d safely deletes a branch only if it has been fully merged into your current branch.
+
+🔹 Scenario 2: Delete a branch that hasn't been merged
+Question:
+You created a branch feature-experiment, made some changes, but now realize the code is no longer needed. You want to delete it, even though it hasn’t been merged. What command will you use?
+✅ Expected Answer:
+bash
+CopyEdit
+git branch -D feature-experiment
+Explanation:
+-D is a shortcut for --delete --force, used when you want to remove a branch regardless of merge status.
+
+🔹 Scenario 3: You're not on the branch you want to delete
+Question:
+You're currently on the feature-login branch and want to delete feature-ui. What must you ensure before running the delete command?
+✅ Expected Answer:
+You must not be on the branch you want to delete. Switch to another branch first:
+bash
+CopyEdit
+git checkout main
+git branch -d feature-ui
+Explanation:
+Git won’t let you delete the branch you’re currently on.
+
+🔹 Scenario 4: You don’t remember if the branch was merged
+Question:
+You want to delete bugfix-footer, but you're unsure if it's been merged. What should you do before deleting it?
+✅ Expected Answer:
+Check its merge status:
+bash
+CopyEdit
+git branch --merged
+If it's listed, you can safely delete it with:
+bash
+CopyEdit
+git branch -d bugfix-footer
+
+🔹 Scenario 5: Delete multiple local branches at once
+Question:
+You finished working on feature-a, feature-b, and feature-c. All have been merged into main. How do you delete them in one command?
+✅ Expected Answer:
+bash
+CopyEdit
+git branch -d feature-a feature-b feature-c
+
+Working with Git remote commands
+1. Cloning a Remote Repository
+When you're starting work on a project and need to clone a remote repository to your local machine:
+bash
+CopyEdit
+git clone <repository_url>
+Example:
+bash
+CopyEdit
+git clone https://github.com/username/repository.git
+2. Checking Existing Remotes
+If you want to see the remotes that are connected to your local repository:
+bash
+CopyEdit
+git remote -v
+This shows the URL of the remote repositories linked to your local repository.
+3. Adding a Remote Repository
+If you want to add a new remote repository to your local repository:
+bash
+CopyEdit
+git remote add <remote_name> <repository_url>
+Example:
+bash
+CopyEdit
+git remote add origin https://github.com/username/repository.git
+4. Removing a Remote
+To remove a remote repository from your local configuration:
+bash
+CopyEdit
+git remote remove <remote_name>
+Example:
+bash
+CopyEdit
+git remote remove origin
+5. Renaming a Remote
+If you want to rename an existing remote:
+bash
+CopyEdit
+git remote rename <old_name> <new_name>
+Example:
+bash
+CopyEdit
+git remote rename origin upstream
+6. Fetching Updates from Remote
+To fetch updates from the remote repository but not merge them into your local branch:
+bash
+CopyEdit
+git fetch <remote_name>
+Example:
+bash
+CopyEdit
+git fetch origin
+7. Pulling Updates from Remote
+To pull the latest changes from the remote repository and merge them into your local branch:
+bash
+CopyEdit
+git pull <remote_name> <branch_name>
+Example:
+bash
+CopyEdit
+git pull origin main
+8. Pushing Changes to Remote
+To push your local commits to a remote repository:
+bash
+CopyEdit
+git push <remote_name> <branch_name>
+Example:
+bash
+CopyEdit
+git push origin main
+9. Setting the Upstream Branch for Pushing
+When pushing for the first time and want to set the remote branch you are pushing to:
+bash
+CopyEdit
+git push --set-upstream <remote_name> <branch_name>
+Example:
+bash
+CopyEdit
+git push --set-upstream origin feature-branch
+10. Changing Remote URL
+To change the URL of a remote (e.g., after changing the remote repository address):
+bash
+CopyEdit
+git remote set-url <remote_name> <new_url>
+Example:
+bash
+CopyEdit
+git remote set-url origin https://github.com/username/new-repository.git
+11. Listing All Remote Branches
+If you want to list all branches on the remote repository:
+bash
+CopyEdit
+git branch -r
+12. Pruning Deleted Remotes
+If a branch was deleted on the remote but still shows up locally:
+bash
+CopyEdit
+git remote prune <remote_name>
+Example:
+bash
+CopyEdit
+git remote prune origin
+13. Fetching a Specific Remote Branch
+To fetch a specific branch from a remote:
+bash
+CopyEdit
+git fetch <remote_name> <branch_name>
+Example:
+bash
+CopyEdit
+git fetch origin feature-branch
+14. Viewing the Remote Repository’s Information
+If you want to see detailed information about a remote repository:
+bash
+CopyEdit
+git remote show <remote_name>
+Example:
+bash
+CopyEdit
+git remote show origin
+15. Rebasing a Local Branch onto a Remote Branch
+If you want to rebase your local branch onto a remote branch (this can be useful to keep your history linear):
+bash
+CopyEdit
+git fetch <remote_name>
+git rebase <remote_name>/<branch_name>
+Example:
+bash
+CopyEdit
+git fetch origin
+git rebase origin/main
+
+
+
+
+
+WEEK 3 scenario based questions answer
+scenario based questions on working with remote repository in collaboration.
+
+1. Scenario: You've cloned a repository and made some changes to a local branch. Now you want to push these changes to the remote repository, but you're getting an error saying "rejected - non-fast-forward." How would you resolve this?
+What they’re looking for: Understanding of pushing changes, remote branches, and potential conflicts.
+Key concepts: git pull, git fetch, git rebase, git merge
+Sample answer:
+"The error typically occurs when your local branch is behind the remote branch, meaning someone else pushed changes after you cloned the repo. To resolve this, I'd first fetch the latest changes from the remote with git fetch origin. Then, I'd rebase my local changes onto the latest changes from the remote by running git rebase origin/main. After that, I would push my changes to the remote repository."
+
+2. Scenario: You’ve been working on a feature branch, and now you need to push it to the remote repository. However, the remote repository already has a main branch. How do you push your feature branch without affecting the main branch?
+What they’re looking for: Understanding of branching and pushing to a remote repository.
+Key concepts: git push, git branch, git remote
+Sample answer:
+"I would first ensure I am on the feature branch by running git branch. If I’m not on the feature branch, I would switch to it with git checkout feature-branch. Then, I'd push my feature branch to the remote with git push origin feature-branch. This will create the branch on the remote without affecting the main branch."
+
+3. Scenario: You cloned a remote repository, but after a while, the repository’s structure changed and new branches were added. How would you keep your local repository updated with the latest changes from the remote repository?
+What they’re looking for: Familiarity with syncing local and remote repositories.
+Key concepts: git fetch, git pull, git remote
+Sample answer:
+"To update my local repository, I would run git fetch origin to fetch the latest changes from the remote repository. This command will update my local reference of the remote branches but won't merge them into my working directory. To integrate those changes, I could either switch to the main branch and run git pull origin main, or I could choose to merge or rebase specific branches based on my workflow."
+
+4. Scenario: A colleague has pushed some changes to the main branch, but you have local changes in the same branch. You want to pull their changes, but you want to avoid merge conflicts. What steps would you take?
+What they’re looking for: Knowledge of handling merge conflicts and safe workflows for pulling remote changes.
+Key concepts: git pull, git fetch, git rebase, git merge
+Sample answer:
+"First, I would run git fetch origin to get the latest changes from the remote. After fetching, I would rebase my local changes onto the updated main branch with git rebase origin/main. This ensures a clean, linear history and minimizes merge conflicts. If there are any conflicts during the rebase, I would resolve them and continue the rebase with git rebase --continue. Once the rebase is done, I would push my changes to the remote."
+
+5. Scenario: You accidentally pushed a sensitive file (e.g., API keys) to the remote repository. How would you fix this situation?
+What they’re looking for: Understanding of removing sensitive data from Git history and the repository.
+Key concepts: git reset, git revert, git filter-branch, git rebase, history rewriting, .gitignore
+Sample answer:
+"To remove the sensitive file from the repository’s history, I would use git filter-branch or the newer tool git filter-repo to rewrite the commit history and remove the file from all previous commits. Once done, I would force-push the rewritten history to the remote repository with git push --force origin main (after notifying my team to avoid disrupting their work). I would also add the sensitive file to .gitignore to prevent it from being committed again." 
+
+6. Scenario: You’re working on a feature branch, and your manager requests that you integrate the latest changes from main into your feature branch. What steps would you take?
+What they’re looking for: Understanding of integrating changes from the main branch into a feature branch.
+Key concepts: git merge, git rebase, git fetch, git pull
+Sample answer:
+"I would start by fetching the latest changes from the remote with git fetch origin. Then, I’d checkout my feature branch if I’m not already on it (git checkout feature-branch). To integrate the changes, I would either merge or rebase main into my feature branch. If I want to keep the history clean, I would use git rebase origin/main to rebase my feature branch on top of the latest main. If I prefer a simpler approach, I could use git merge origin/main to merge the changes from main into my feature branch."
+
+7. Scenario: You cloned a remote repository, but later you find that you need to push your changes to a different remote repository. How do you configure your local repository to push to this new remote?
+What they’re looking for: Knowledge of handling multiple remotes and changing remote URLs.
+Key concepts: git remote add, git remote set-url, git remote -v
+Sample answer:
+"To push my changes to a different remote, I would first check the existing remotes by running git remote -v. If the new remote is not listed, I would add it with git remote add new-remote <new_repository_url>. If the new repository URL is just replacing the current one, I would use git remote set-url origin <new_repository_url>. Then I could push my changes to the new remote with git push new-remote branch-name."
+
+8. Scenario: After running git pull, you notice that your local branch is behind the remote branch. How would you proceed to bring your local branch up to date without losing your local changes?
+What they’re looking for: Understanding of safe strategies to keep both local and remote branches in sync.
+Key concepts: git pull, git fetch, git rebase, git merge
+Sample answer:
+"I would start by running git fetch origin to fetch the latest changes from the remote without modifying my local branch. Then, I would either use git rebase origin/branch-name to rebase my local commits on top of the fetched commits or git merge origin/branch-name to merge the remote changes into my local branch. Rebase would be preferred if I want to keep a cleaner commit history."
+
+9. Scenario: You’re working on a project with multiple collaborators, and you notice that your local changes conflict with changes that have been pushed by others. How would you resolve the conflicts?
+What they’re looking for: Understanding of how to handle merge conflicts in a collaborative environment.
+Key concepts: git merge, git rebase, conflict resolution, git status
+Sample answer:
+"When I encounter a merge conflict, I would first use git status to see which files are conflicting. Then, I would open those files and manually resolve the conflicts. After resolving the conflicts, I would add the resolved files to the staging area with git add <file-name>. Finally, if I was merging, I would commit the merge, and if I was rebasing, I would continue the rebase with git rebase --continue. Once all conflicts are resolved and committed, I would push the changes to the remote repository."
+
+10. Scenario: You’ve pushed a feature branch to a remote repository, but now you need to delete the branch from the remote. How would you do that?
+What they’re looking for: Knowledge of cleaning up remote branches after a feature is complete.
+Key concepts: git push --delete, git branch -d
+Sample answer:
+"To delete a branch from the remote, I would run the command git push origin --delete feature-branch. This will remove the branch from the remote repository. If I also want to delete it from my local machine, I would use git branch -d feature-branch to delete the local branch (assuming it has been merged). If the branch hasn’t been merged, I’d use git branch -D feature-branch to forcefully delete the branch."
+
+
+-----
+Scenario :
+You are working on a collaborative project hosted on GitHub with a team of four developers. The main branch is main, and each developer works on their own feature branches.
+You are assigned to implement a new UI component in a branch called feature/ui-update. Meanwhile, another team member has made a critical bug fix and pushed it directly to the main branch. When you try to push your changes, your push fails due to upstream changes.
+Additionally, a teammate has submitted a patch file with a small CSS fix and shared it via email. You need to apply the patch, test it, and merge everything into main without breaking any functionality.       
+1. What command will you use to bring your local main branch up to date with the remote repository before merging it into your feature branch?
+bash
+CopyEdit
+git checkout main
+git pull origin main
+This will ensure your local main branch is up to date with the latest changes from the remote repository (e.g., the critical bug fix your teammate made).
+
+2. How will you update your feature/ui-update branch to reflect the latest changes from main?
+You have two main options: merge or rebase.
+Option A: Merge (safer for shared branches)
+bash
+CopyEdit
+git checkout feature/ui-update
+git merge main
+Option B: Rebase (keeps a cleaner history but may require resolving conflicts)
+bash
+CopyEdit
+git checkout feature/ui-update
+git rebase main
+Use rebase only if the branch is not yet pushed/shared with others.
+
+3. Which command should you use to attempt pushing your local feature branch again, and what should you do if it fails due to conflicts?
+Try to push:
+bash
+CopyEdit
+git push origin feature/ui-update
+If it fails due to upstream changes:
+Pull with rebase to avoid unnecessary merge commits:
+bash
+CopyEdit
+git pull --rebase origin feature/ui-update
+Resolve any conflicts manually (Git will tell you which files are in conflict).
+After resolving, continue the rebase:
+bash
+CopyEdit
+git add .
+git rebase --continue
+Then push again:
+bash
+CopyEdit
+git push origin feature/ui-update
+
+4. How do you apply a .patch file provided by your teammate and include it in your commit history?
+Assuming you received a file named fix.patch:
+bash
+CopyEdit
+git apply fix.patch
+Then stage and commit the changes:
+bash
+CopyEdit
+git add .
+git commit -m "Apply CSS fix from patch file"
+✅ This will include the patch content in your Git history.
+
+5. After successful testing, describe the steps (with commands) to merge your feature branch into main and push it to GitHub.
+Assuming you're ready to merge:
+bash
+CopyEdit
+# Make sure you're up to date
+git checkout main
+git pull origin main
+
+# Merge the feature branch
+git merge feature/ui-update
+
+# Push the merged changes to GitHub
+git push origin main
+You can optionally delete the feature branch locally and remotely:
+bash
+CopyEdit
+git branch -d feature/ui-update           # delete locally
+git push origin --delete feature/ui-update  # delete remotely
+
+Patch
+🔹 To create a patch from the last commit:
+bash
+CopyEdit
+git format-patch -1 HEAD
+This will create a file like:
+sql
+CopyEdit
+0001-Your-commit-message.patch
+🔹 To specify an output directory:
+bash
+CopyEdit
+git format-patch -1 HEAD -o patches/
+This creates the patch file inside a folder called patches.
+✅ Bonus: Combine into one file manually
+If you really want to redirect all patches into a single file, you can do this:
+bash
+CopyEdit
+git format-patch -1 HEAD
+cat 0001-*.patch > my_patch_file.patch
+Now my_patch_file.patch contains the same content and can be shared or applied.
+
