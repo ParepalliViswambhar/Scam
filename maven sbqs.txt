@@ -1,0 +1,586 @@
+1. What is Maven and what are its main features?
+
+Maven is a build automation and project management tool primarily for Java projects. It helps in building, reporting, and documenting projects.
+
+Main Features:
+
+Build management – Compiles, tests, packages projects automatically.
+
+Dependency management – Automatically downloads required libraries from Maven repositories.
+
+Standard project structure – Enforces conventions like src/main/java and src/test/java.
+
+Plugins support – Extend functionality via plugins.
+
+Project lifecycle management – Handles phases like compile, test, package, deploy.
+
+2. Difference between Maven and Ant
+Feature	Maven	Ant
+Dependency Management	Automatic via POM	Manual, need to download jars
+Project Structure	Standardized	Flexible, user-defined
+Build File	XML-based POM (pom.xml)	Build.xml
+Lifecycle	Built-in lifecycle phases	Custom targets only
+Learning Curve	Easier once conventions are understood	More flexible but verbose
+3. What is a POM file and its key elements?
+
+POM (Project Object Model) is the fundamental XML file (pom.xml) in a Maven project.
+
+Key Elements:
+
+<project> – Root element.
+
+<modelVersion> – POM version (usually 4.0.0).
+
+<groupId> – Organization or package name.
+
+<artifactId> – Project name.
+
+<version> – Project version.
+
+<dependencies> – List of project dependencies.
+
+<build> – Build settings and plugins.
+
+<properties> – Custom properties.
+
+<profiles> – Environment-specific configurations.
+
+4. How do you create a new Maven project?
+
+Command-line way:
+
+mvn archetype:generate -DgroupId=com.example -DartifactId=myapp -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+
+groupId – Package structure
+
+artifactId – Project name
+
+archetypeArtifactId – Template type
+
+5. Purpose of the dependency tag in POM file
+
+The <dependency> tag specifies external libraries your project needs.
+Example:
+
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>5.3.27</version>
+</dependency>
+
+6. How to manage project dependencies in Maven
+
+Add dependencies to <dependencies> in POM.
+
+Use dependency scopes (compile, test, provided, runtime).
+
+Exclude transitive dependencies if needed.
+
+7. Maven lifecycle phases
+
+Maven has 3 built-in lifecycles:
+
+default – Builds the project:
+
+validate, compile, test, package, verify, install, deploy
+
+clean – Cleans target directories:
+
+pre-clean, clean, post-clean
+
+site – Generates documentation:
+
+pre-site, site, post-site, site-deploy
+
+8. Maven repository types
+
+Local repository – On your system (~/.m2/repository)
+
+Remote repository – External repositories (like Maven Central)
+
+Central repository – Default Maven Central repository
+
+Internal repository – For company-wide shared libraries
+
+9. How to add a dependency to your Maven project
+
+Add a <dependency> inside <dependencies> in pom.xml:
+
+<dependencies>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+10. Purpose of plugins section in POM file
+
+Plugins extend Maven’s functionality, e.g., compiling Java, packaging JAR/WAR, generating docs.
+
+Example:
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+11. How to run a specific Maven goal
+mvn clean install
+mvn compile
+mvn test
+mvn package
+
+
+mvn <goal> – runs a specific goal
+
+12. Difference between compile, test, package
+Phase	Purpose
+compile	Compiles source code
+test	Runs unit tests
+package	Packages compiled code into JAR/WAR
+13. How to create a custom Maven plugin
+
+Create a Maven project using maven-plugin archetype:
+
+mvn archetype:generate -DgroupId=com.example -DartifactId=myplugin -DarchetypeArtifactId=maven-archetype-plugin
+
+
+Implement your Mojo (Java class with plugin logic)
+
+Package and install the plugin
+
+Use it in <plugins> section of another project
+
+14. Maven command to clean and build project
+mvn clean install
+
+
+clean – removes target directory
+
+install – compiles, tests, packages, and installs to local repo
+
+15. How to exclude a transitive dependency
+<dependency>
+    <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-client</artifactId>
+    <version>3.3.4</version>
+    <exclusions>
+        <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+16. Properties section in POM file
+
+Used for reusable variables like version numbers:
+
+<properties>
+    <java.version>17</java.version>
+    <spring.version>5.3.27</spring.version>
+</properties>
+
+17. Maven profiles
+
+Profiles allow building the project differently depending on environment:
+
+<profiles>
+    <profile>
+        <id>dev</id>
+        <properties>
+            <env>development</env>
+        </properties>
+    </profile>
+</profiles>
+
+
+Run with a profile:
+
+mvn clean install -P dev
+
+18. How to run unit tests using Maven
+mvn test
+
+
+Uses Surefire plugin by default to run tests in src/test/java.
+
+19. Install package to local repository
+mvn install
+
+
+Copies your JAR/WAR to local Maven repo (~/.m2/repository).
+
+20. Purpose of site plugin
+
+Generates project documentation like reports, project info, dependencies.
+
+mvn site
+
+21. Specify a different version of a dependency
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>5.10.0</version>
+</dependency>
+
+22. Simple Java class & Maven project
+
+Directory structure:
+
+myapp/
+ ├─ src/main/java/com/example/App.java
+ └─ pom.xml
+
+
+App.java
+
+package com.example;
+
+public class App {
+    public static void main(String[] args) {
+        System.out.println("Hello Maven!");
+    }
+}
+
+
+Build project:
+
+mvn compile
+mvn package
+
+23. Maven + CI/CD tools like Jenkins
+
+Configure Jenkins pipeline to run Maven goals:
+
+pipeline {
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+    }
+}
+
+
+Jenkins reads pom.xml for dependencies and plugins.
+
+24. Shade plugin to create uber JAR
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.5.0</version>
+    <executions>
+        <execution>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+        </execution>
+    </executions>
+</plugin>
+
+
+Packages your app with all dependencies into a single JAR.
+
+25. Maven command to generate project site
+mvn site
+
+
+Uses maven-site-plugin to generate HTML documentation.
+
+
+1. Error: maven-compiler-plugin:3.8.1:compile failed
+
+🔹 To debug, run:
+
+mvn clean install -X
+
+
+-X = debug logs
+
+Look for missing dependency, wrong Java version, or syntax error.
+Often fixed by updating the maven-compiler-plugin in pom.xml:
+
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <version>3.11.0</version>
+  <configuration>
+    <source>17</source>
+    <target>17</target>
+  </configuration>
+</plugin>
+
+2. Dependency not recognized by compiler
+
+Steps:
+
+Check if dependency is downloaded to ~/.m2/repository:
+
+ls ~/.m2/repository/groupId/artifactId/version/
+
+
+Check dependency tree:
+
+mvn dependency:tree
+
+
+If missing, force re-download:
+
+mvn dependency:purge-local-repository -DreResolve=true
+
+3. Apply teammate’s .patch file
+git apply bugfix.patch
+
+
+or
+
+git am < bugfix.patch
+
+
+Then build:
+
+mvn clean install
+
+4. Rerun only failed tests
+
+Maven Surefire stores failed tests in target/surefire-reports/.
+To rerun them:
+
+mvn surefire:test -Dsurefire.rerunFailingTestsCount=1
+
+
+Or rerun specific test:
+
+mvn -Dtest=MyTestClass test
+
+5. Unsupported class version error
+
+Means your code is compiled with a newer JDK than runtime.
+Check maven-compiler-plugin:
+
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <source>17</source>
+    <target>17</target>
+  </configuration>
+</plugin>
+
+6. Change WAR → Standalone JAR
+
+In pom.xml:
+
+<packaging>jar</packaging>
+
+
+Add maven-jar-plugin or shade plugin to include dependencies and main method.
+
+7. Change build output directory
+<build>
+  <directory>build_output</directory>
+</build>
+
+8. Skip tests during build
+mvn clean install -DskipTests
+
+
+(Compiles tests but doesn’t run them)
+Or
+
+mvn clean install -Dmaven.test.skip=true
+
+
+(Skips compilation too)
+
+9. Generate site report with coverage
+mvn site
+
+
+For coverage, use Jacoco plugin:
+
+mvn clean verify jacoco:report site
+
+10. Build project and target/ output
+mvn clean install
+
+
+Generates in target/:
+
+.class files → target/classes
+
+.jar or .war → target/myapp-1.0.jar
+
+Reports → target/surefire-reports/
+
+Logs, metadata
+
+11. Dependency conflict resolution
+
+Maven uses nearest definition wins (first found in tree).
+Check conflicts:
+
+mvn dependency:tree -Dverbose
+
+
+Force version with dependencyManagement:
+
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+12. Writing and running JUnit tests
+
+Place in src/test/java.
+
+Example:
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class AppTest {
+    @Test
+    public void testHello() {
+        assertEquals(2, 1+1);
+    }
+}
+
+
+Run:
+
+mvn test
+
+
+Compiled tests → target/test-classes
+
+Reports → target/surefire-reports
+
+13. Executable JAR with main method
+
+Use maven-shade-plugin or assembly plugin:
+
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals><goal>shade</goal></goals>
+      <configuration>
+        <transformers>
+          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+            <mainClass>com.example.App</mainClass>
+          </transformer>
+        </transformers>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+
+
+Run:
+
+java -jar target/myapp-1.0.jar
+
+14. Install and use third-party JAR
+mvn install:install-file \
+  -Dfile=/path/custom-lib.jar \
+  -DgroupId=com.custom \
+  -DartifactId=custom-lib \
+  -Dversion=1.0 \
+  -Dpackaging=jar
+
+
+Confirm:
+
+mvn dependency:tree
+
+15. Create Maven Web Project (WAR)
+mvn archetype:generate -DgroupId=com.example -DartifactId=myweb -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
+
+
+Standard structure:
+
+src/main/webapp/WEB-INF/web.xml
+src/main/java
+src/main/resources
+
+16. Build WAR file
+mvn clean package
+
+
+WAR generated in:
+
+target/myweb.war
+
+
+Deploy by copying to TOMCAT_HOME/webapps/.
+
+17. Add JSTL & servlet-api
+<dependency>
+  <groupId>javax.servlet</groupId>
+  <artifactId>javax.servlet-api</artifactId>
+  <version>4.0.1</version>
+  <scope>provided</scope>
+</dependency>
+<dependency>
+  <groupId>jstl</groupId>
+  <artifactId>jstl</artifactId>
+  <version>1.2</version>
+</dependency>
+
+
+👉 provided → server (Tomcat/Jetty) already provides it.
+
+18. Multi-module Maven project
+
+pom.xml in parent:
+
+<modules>
+  <module>core</module>
+  <module>web</module>
+</modules>
+
+
+core → business logic (jar)
+
+web → web app (war), depends on core
+
+19. Configuring Maven web project
+
+<packaging>war</packaging> in POM
+
+Deploy WAR → servlet container (Tomcat, Jetty)
+
+Unlike standalone JAR → can’t run with java -jar unless embedded server added
+
+
+
+
+
+
+
