@@ -1,0 +1,1109 @@
+# ============================================
+# EXPERIMENT 6 — SPAM DETECTION USING ML
+# Models allowed: Naive Bayes, KNN, SVM
+# Required Outputs: Accuracy, Classification Report, Confusion Matrix, TP/TN/FP/FN, Prediction
+# ============================================
+
+import pandas as pd
+import numpy as np
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import LabelEncoder
+
+
+# -----------------------------
+# 1. Load dataset with correct encoding
+# -----------------------------
+df = pd.read_csv("spam.csv", encoding="latin1")
+
+# Keep only needed columns
+df = df[['v1', 'v2']]
+df.columns = ['label', 'text']
+
+
+# -----------------------------
+# 2. Clean text
+# -----------------------------
+def clean_text(t):
+    t = str(t).lower()
+    t = re.sub(r'http\S+',' ',t)
+    t = re.sub(r'[^a-z\s]',' ',t)
+    t = re.sub(r'\s+',' ',t).strip()
+    return t
+
+df['cleaned'] = df['text'].apply(clean_text)
+
+
+# -----------------------------
+# 3. Encode labels
+# spam = 1, ham = 0
+# -----------------------------
+le = LabelEncoder()
+df['label_encoded'] = le.fit_transform(df['label'])
+
+
+# -----------------------------
+# 4. Split dataset
+# -----------------------------
+X = df['cleaned']
+y = df['label_encoded']
+
+tfidf = TfidfVectorizer(max_features=3000)
+X_vect = tfidf.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_vect, y, test_size=0.2, random_state=42, stratify=y
+)
+
+
+# -----------------------------
+# 5. Choose one model (exam will tell)
+# UNCOMMENT one model only
+# -----------------------------
+
+# model = MultinomialNB()               # Naive Bayes
+# model = KNeighborsClassifier(n_neighbors=5)   # KNN
+model = LinearSVC()                     # SVM (BEST)
+model = LogisticRegression(max_iter=1000)
+
+
+# -----------------------------
+# 6. Train model
+# -----------------------------
+model.fit(X_train, y_train)
+
+
+# -----------------------------
+# 7. Accuracy
+# -----------------------------
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+print("Accuracy:", acc)
+
+
+# -----------------------------
+# 8. Classification Report
+# -----------------------------
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred, target_names=['ham', 'spam']))
+
+
+# -----------------------------
+# 9. Confusion Matrix + TP/TN/FP/FN
+# -----------------------------
+cm = confusion_matrix(y_test, y_pred)
+labels = ['Ham', 'Spam']
+
+plt.figure(figsize=(6,5))
+sns.heatmap(cm, annot=True, cmap='Blues', fmt='d',
+            xticklabels=labels, yticklabels=labels)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+TN, FP, FN, TP = cm.ravel()
+
+print("\nTN:", TN)
+print("FP:", FP)
+print("FN:", FN)
+print("TP:", TP)
+
+
+# -----------------------------
+# 10. New sentence prediction
+# -----------------------------
+def predict_message(msg):
+    clean = clean_text(msg)
+    vect = tfidf.transform([clean])
+    pred = model.predict(vect)[0]
+    print("\nMessage:", msg)
+    print("Prediction:", "Spam" if pred==1 else "Ham")
+
+predict_message("Congratulations! You won a free car!!!")
+predict_message("Hey, call me when you reach home.")
+# ==========================================================
+# NLP LAB INTERNAL
+# SPAM DETECTION USING:
+# 1. SIMPLE RNN
+# 2. LSTM
+# 3. BiLSTM
+# ==========================================================
+
+import pandas as pd
+import numpy as np
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, Bidirectional, Dense, Dropout
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+
+
+# ==========================================================
+# 1. LOAD & CLEAN DATASET
+# ==========================================================
+df = pd.read_csv("spam.csv", encoding="latin1")
+df = df[['v1','v2']]
+df.columns = ['label','text']
+
+def clean_text(t):
+    t = str(t).lower()
+    t = re.sub(r'[^a-z\s]', ' ', t)
+    t = re.sub(r'\s+',' ', t).strip()
+    return t
+
+df['cleaned'] = df['text'].apply(clean_text)
+
+le = LabelEncoder()
+df['label_encoded'] = le.fit_transform(df['label'])   # ham=0, spam=1
+
+
+# ==========================================================
+# 2. TOKENIZE & PAD SEQUENCES
+# ==========================================================
+tokenizer = Tokenizer(num_words=5000, oov_token="<OOV>")
+tokenizer.fit_on_texts(df['cleaned'])
+
+seq = tokenizer.texts_to_sequences(df['cleaned'])
+padded = pad_sequences(seq, maxlen=100, padding='post')
+
+X = padded
+y = df['label_encoded']
+
+
+# ==========================================================
+# 3. TRAIN-TEST SPLIT
+# ==========================================================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+
+# ==========================================================
+# 4. FUNCTION TO TRAIN & EVALUATE ANY MODEL
+# ==========================================================
+def train_and_evaluate(model, model_name):
+
+    print(f"TRAINING {model_name}")
+
+    model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])
+
+    history = model.fit(
+        X_train, y_train,
+        validation_split=0.2,
+        epochs=3,
+        batch_size=32,
+        verbose=1
+    )
+
+    # PLOTS
+    plt.figure(figsize=(12,4))
+
+    # Accuracy
+    plt.subplot(1,2,1)
+    plt.plot(history.history['accuracy'], label='train acc')
+    plt.plot(history.history['val_accuracy'], label='val acc')
+    plt.title(f"{model_name} - Accuracy")
+    plt.legend()
+
+    # Loss
+    plt.subplot(1,2,2)
+    plt.plot(history.history['loss'], label='train loss')
+    plt.plot(history.history['val_loss'], label='val loss')
+    plt.title(f"{model_name} - Loss")
+    plt.legend()
+
+    plt.show()
+
+    # PREDICTION
+    y_pred_prob = model.predict(X_test)
+    y_pred = (y_pred_prob >= 0.5).astype(int).flatten()
+
+    # METRICS
+    print("\nAccuracy:", accuracy_score(y_test, y_pred))
+    print("\nClassification Report:\n")
+    print(classification_report(y_test, y_pred, target_names=['ham','spam']))
+
+    # CONFUSION MATRIX
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
+    plt.title(f"{model_name} - Confusion Matrix")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+    TN, FP, FN, TP = cm.ravel()
+    print("\nTN:", TN)
+    print("FP:", FP)
+    print("FN:", FN)
+    print("TP:", TP)
+
+    return model
+
+
+# ==========================================================
+# 5. MODEL 1 — SIMPLE RNN
+# ==========================================================
+rnn_model = Sequential([
+    Embedding(input_dim=5000, output_dim=32, input_length=100),
+    SimpleRNN(64),
+    Dropout(0.3),
+    Dense(1, activation='sigmoid')
+])
+
+trained_rnn = train_and_evaluate(rnn_model, "Simple RNN")
+
+
+# ==========================================================
+# 6. MODEL 2 — LSTM
+# ==========================================================
+lstm_model = Sequential([
+    Embedding(input_dim=5000, output_dim=32, input_length=100),
+    LSTM(64),
+    Dropout(0.3),
+    Dense(1, activation='sigmoid')
+])
+
+trained_lstm = train_and_evaluate(lstm_model, "LSTM")
+
+
+# ==========================================================
+# 7. MODEL 3 — BiLSTM
+# ==========================================================
+bilstm_model = Sequential([
+    Embedding(input_dim=5000, output_dim=32, input_length=100),
+    Bidirectional(LSTM(64)),
+    Dropout(0.3),
+    Dense(1, activation='sigmoid')
+])
+
+trained_bilstm = train_and_evaluate(bilstm_model, "BiLSTM")
+
+
+# ==========================================================
+# 8. NEW SENTENCE PREDICTION (USE ANY MODEL)
+# ==========================================================
+def predict_message(msg, model, model_name):
+    clean = clean_text(msg)
+    seq = tokenizer.texts_to_sequences([clean])
+    pad = pad_sequences(seq, maxlen=100)
+    pred = (model.predict(pad)[0][0] >= 0.5)
+    print(f"\n[{model_name}]  Message:", msg)
+    print("Prediction:", "Spam" if pred else "Ham")
+
+
+# EXAMPLES
+predict_message("You won $1000 cash!!!", trained_lstm, "LSTM")
+predict_message("Call me after class", trained_lstm, "LSTM")
+# ====================================================================
+# SENTIMENT ANALYSIS USING RNN, LSTM & BiLSTM (3 Class: pos/neg/neu)
+# Dataset columns: textID, text, selected_text, sentiment
+# ====================================================================
+
+import pandas as pd
+import numpy as np
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, Bidirectional, Dense, Dropout
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# ====================================================================
+# 1. LOAD DATASET (YOUR FORMAT)
+# ====================================================================
+df = pd.read_csv("Tweets_Data.csv")  # change name if needed
+
+# Keep only needed columns
+df = df[['text', 'sentiment']]
+
+print(df.head())
+
+
+# ====================================================================
+# 2. CLEAN TEXT
+# ====================================================================
+def clean_text(t):
+    t = str(t).lower()
+    t = re.sub(r'[^a-z\s]', ' ', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    return t
+
+df['cleaned'] = df['text'].apply(clean_text)
+
+
+# ====================================================================
+# 3. LABEL ENCODING (positive, negative, neutral)
+# ====================================================================
+le = LabelEncoder()
+df['label'] = le.fit_transform(df['sentiment'])
+print("Classes →", le.classes_)
+num_classes = len(le.classes_)
+
+
+# ====================================================================
+# 4. TOKENIZER + PADDING
+# ====================================================================
+tokenizer = Tokenizer(num_words=10000, oov_token="<OOV>")
+tokenizer.fit_on_texts(df['cleaned'])
+
+seq = tokenizer.texts_to_sequences(df['cleaned'])
+padded = pad_sequences(seq, maxlen=100, padding='post')
+
+X = padded
+y = df['label'].values
+
+
+# ====================================================================
+# 5. TRAIN–TEST SPLIT
+# ====================================================================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42
+)
+
+
+# ====================================================================
+# 6. TRAINING FUNCTION
+# ====================================================================
+def train_model(model, model_name):
+
+    print(f"\n==============================")
+    print(f"TRAINING {model_name}")
+    print("==============================")
+
+    model.compile(
+        loss="sparse_categorical_crossentropy",
+        optimizer="adam",
+        metrics=["accuracy"]
+    )
+
+    history = model.fit(
+        X_train, y_train,
+        validation_split=0.2,
+        epochs=3,
+        batch_size=32,
+        verbose=1
+    )
+
+    # ------------ GRAPHS --------------
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(history.history['accuracy'], label="train_acc")
+    plt.plot(history.history['val_accuracy'], label="val_acc")
+    plt.title(f"{model_name} Accuracy")
+    plt.legend()
+
+    plt.subplot(1,2,2)
+    plt.plot(history.history['loss'], label="train_loss")
+    plt.plot(history.history['val_loss'], label="val_loss")
+    plt.title(f"{model_name} Loss")
+    plt.legend()
+
+    plt.show()
+
+    # ------------ PREDICTION --------------
+    y_pred_prob = model.predict(X_test)
+    y_pred = np.argmax(y_pred_prob, axis=1)
+
+    # Metrics
+    print("\nAccuracy:", accuracy_score(y_test, y_pred))
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred, target_names=le.classes_))
+
+    # Confusion Matrix
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, cmap="Blues", fmt="d",
+                xticklabels=le.classes_, yticklabels=le.classes_)
+    plt.title(f"{model_name} Confusion Matrix")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+    # TP, FP, FN, TN per class
+    print("\nTP, FP, FN, TN per class:")
+    for i, cls in enumerate(le.classes_):
+        TP = cm[i, i]
+        FP = cm[:, i].sum() - TP
+        FN = cm[i, :].sum() - TP
+        TN = cm.sum() - (TP + FP + FN)
+        print(f"\nClass: {cls}")
+        print("TP:", TP, "FP:", FP, "FN:", FN, "TN:", TN)
+
+    return model
+
+
+# ====================================================================
+# 7. MODEL 1 — RNN
+# ====================================================================
+rnn_model = Sequential([
+    Embedding(10000, 32, input_length=100),
+    SimpleRNN(64),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_rnn = train_model(rnn_model, "RNN")
+
+
+# ====================================================================
+# 8. MODEL 2 — LSTM
+# ====================================================================
+lstm_model = Sequential([
+    Embedding(10000, 32, input_length=100),
+    LSTM(64),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_lstm = train_model(lstm_model, "LSTM")
+
+
+# ====================================================================
+# 9. MODEL 3 — BiLSTM
+# ====================================================================
+bilstm_model = Sequential([
+    Embedding(10000, 32, input_length=100),
+    Bidirectional(LSTM(64)),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_bilstm = train_model(bilstm_model, "BiLSTM")
+
+
+# ====================================================================
+# 10. NEW SENTENCE PREDICTION
+# ====================================================================
+def predict_sentiment(text, model, model_name):
+    clean = clean_text(text)
+    seq = tokenizer.texts_to_sequences([clean])
+    pad = pad_sequences(seq, maxlen=100)
+    pred_class = np.argmax(model.predict(pad))
+    print(f"\n[{model_name}]")
+    print("Text:", text)
+    print("Predicted Sentiment:", le.inverse_transform([pred_class])[0])
+
+
+# EXAMPLE PREDICTIONS
+predict_sentiment("I love this product!", trained_lstm, "LSTM")
+predict_sentiment("This is horrible!", trained_bilstm, "BiLSTM")
+predict_sentiment("Okay, nothing special", trained_rnn, "RNN")
+# ================================================================
+# NEWS CATEGORY CLASSIFICATION (Multi-Class)
+# Using RNN, LSTM, BiLSTM
+# Dataset Columns: headline, category, short_description, authors, date
+# ================================================================
+
+import pandas as pd
+import numpy as np
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, Bidirectional, Dense, Dropout
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+
+# ================================================================
+# 1. LOAD DATASET
+# ================================================================
+df = pd.read_csv("news_balanced_categories11.csv")  # change filename
+
+# Keep only headline and category
+df = df[['headline', 'category']]
+
+df.columns = ['text', 'category']
+print(df.head())
+
+
+# ================================================================
+# 2. CLEAN TEXT
+# ================================================================
+def clean_text(t):
+    t = str(t).lower()
+    t = re.sub(r'[^a-z\s]', ' ', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    return t
+
+df['cleaned'] = df['text'].apply(clean_text)
+
+
+# ================================================================
+# 3. LABEL ENCODING
+# ================================================================
+le = LabelEncoder()
+df['label_encoded'] = le.fit_transform(df['category'])
+num_classes = len(le.classes_)
+print("\nCategories:", le.classes_)
+
+
+# ================================================================
+# 4. TOKENIZATION & PADDING
+# ================================================================
+tokenizer = Tokenizer(num_words=15000, oov_token="<OOV>")
+tokenizer.fit_on_texts(df['cleaned'])
+
+seq = tokenizer.texts_to_sequences(df['cleaned'])
+padded = pad_sequences(seq, maxlen=120, padding='post')
+
+X = padded
+y = df['label_encoded']
+
+
+# ================================================================
+# 5. TRAIN–TEST SPLIT
+# ================================================================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+
+# ================================================================
+# 6. TRAINING FUNCTION (COMMON)
+# ================================================================
+def train_model(model, name):
+
+    print(f"\n==============================")
+    print(f"Training: {name}")
+    print("==============================")
+
+    model.compile(
+        loss="sparse_categorical_crossentropy",
+        optimizer="adam",
+        metrics=["accuracy"]
+    )
+
+    history = model.fit(
+        X_train, y_train,
+        epochs=3,
+        batch_size=32,
+        validation_split=0.2,
+        verbose=1
+    )
+
+    # Graphs
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title(f"{name} Accuracy")
+    plt.legend(['Train', 'Val'])
+
+    plt.subplot(1,2,2)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title(f"{name} Loss")
+    plt.legend(['Train', 'Val'])
+
+    plt.show()
+
+    # Evaluation
+    y_pred_p = model.predict(X_test)
+    y_pred = np.argmax(y_pred_p, axis=1)
+
+    print("\nAccuracy:", accuracy_score(y_test, y_pred))
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred, target_names=le.classes_))
+
+    cm = confusion_matrix(y_test, y_pred)
+    sns.heatmap(cm, annot=True, cmap="Blues", fmt="d",
+                xticklabels=le.classes_, yticklabels=le.classes_)
+    plt.title(f"{name} Confusion Matrix")
+    plt.show()
+
+    # TP, FP, FN, TN per class
+    print("\n--- TP, FP, FN, TN per class ---")
+    for i, cls in enumerate(le.classes_):
+        TP = cm[i, i]
+        FP = cm[:, i].sum() - TP
+        FN = cm[i, :].sum() - TP
+        TN = cm.sum() - (TP + FP + FN)
+        print(f"\nClass: {cls}")
+        print("TP:", TP, "FP:", FP, "FN:", FN, "TN:", TN)
+
+    return model
+
+
+# ================================================================
+# 7. MODEL 1 — RNN
+# ================================================================
+rnn_model = Sequential([
+    Embedding(15000, 64, input_length=120),
+    SimpleRNN(128),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_rnn = train_model(rnn_model, "RNN")
+
+
+# ================================================================
+# 8. MODEL 2 — LSTM
+# ================================================================
+lstm_model = Sequential([
+    Embedding(15000, 64, input_length=120),
+    LSTM(128),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_lstm = train_model(lstm_model, "LSTM")
+
+
+# ================================================================
+# 9. MODEL 3 — BiLSTM
+# ================================================================
+bilstm_model = Sequential([
+    Embedding(15000, 64, input_length=120),
+    Bidirectional(LSTM(128)),
+    Dropout(0.3),
+    Dense(num_classes, activation="softmax")
+])
+
+trained_bilstm = train_model(bilstm_model, "BiLSTM")
+
+
+# ================================================================
+# 10. NEW HEADLINE PREDICTION
+# ================================================================
+def predict_news(headline, model, name):
+    clean = clean_text(headline)
+    seq = tokenizer.texts_to_sequences([clean])
+    pad = pad_sequences(seq, maxlen=120)
+    pred = np.argmax(model.predict(pad))
+    print(f"\n[{name}]")
+    print("Headline:", headline)
+    print("Predicted Category:", le.inverse_transform([pred])[0])
+
+
+# TEST EXAMPLES
+predict_news("Government proposes new tax policy", trained_lstm, "LSTM")
+predict_news("Actor wins award for best performance", trained_bilstm, "BiLSTM")
+predict_news("New smartphone model launched", trained_rnn, "RNN")
+# ========================================================================
+# POS TAGGING — FINAL WORKING VERSION (NO PAD PREDICTIONS)
+# ========================================================================
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, Bidirectional, TimeDistributed, Dense
+
+
+# ========================================================================
+# 1. LOAD DATASET
+# ========================================================================
+df = pd.read_csv("pos_tagged_dataset.csv")
+print(df.head())
+
+
+# ========================================================================
+# 2. GROUP WORDS & POS TAGS BY SENTENCE ID
+# ========================================================================
+sentences = df.groupby("sentence")["word"].apply(list)
+tags = df.groupby("sentence")["pos_tag"].apply(list)
+
+print("\nSample Sentence:", sentences.iloc[0])
+print("Tags:", tags.iloc[0])
+
+
+# ========================================================================
+# 3. TOKENIZE WORDS
+# ========================================================================
+word_tokenizer = Tokenizer(oov_token="<OOV>")
+word_tokenizer.fit_on_texts(sentences)
+
+X = word_tokenizer.texts_to_sequences(sentences)
+word_vocab = len(word_tokenizer.word_index) + 1
+
+
+# ========================================================================
+# 4. ENCODE POS TAGS (ADD PAD TAG — IMPORTANT)
+# ========================================================================
+all_tags = [t for row in tags for t in row]
+all_tags.append("PAD")  # Pad tag added manually
+
+tag_encoder = LabelEncoder()
+tag_encoder.fit(all_tags)
+
+y_encoded = tags.apply(lambda row: tag_encoder.transform(row))
+num_tags = len(tag_encoder.classes_)
+
+print("\nPOS TAGS:", tag_encoder.classes_)
+
+
+# ========================================================================
+# 5. PAD SEQUENCES
+# ========================================================================
+max_len = max(sentences.apply(len))
+
+PAD_ID = tag_encoder.transform(["PAD"])[0]
+
+X_padded = pad_sequences(X, maxlen=max_len, padding="post")
+y_padded = pad_sequences(y_encoded, maxlen=max_len, padding="post", value=PAD_ID)
+
+
+# ========================================================================
+# 6. TRAIN–TEST SPLIT
+# ========================================================================
+X_train, X_test, y_train, y_test = train_test_split(
+    X_padded, y_padded, test_size=0.2, random_state=42
+)
+
+
+# ========================================================================
+# 7. MODEL BUILDER (RNN, LSTM, BiLSTM)
+# ========================================================================
+def build_pos_model(model_type):
+
+    model = Sequential([
+        Embedding(
+            input_dim=word_vocab,
+            output_dim=128,
+            input_length=max_len,
+            mask_zero=True    # ❤️ FIX FOR PAD PREDICTION ISSUE
+        )
+    ])
+
+    if model_type == "RNN":
+        model.add(SimpleRNN(256, return_sequences=True))
+
+    elif model_type == "LSTM":
+        model.add(LSTM(256, return_sequences=True))
+
+    elif model_type == "BiLSTM":
+        model.add(Bidirectional(LSTM(256, return_sequences=True)))
+
+    # Output layer
+    model.add(TimeDistributed(Dense(num_tags, activation="softmax")))
+
+    return model
+
+
+# ========================================================================
+# 8. TRAIN MODEL FUNCTION
+# ========================================================================
+def train_model(model, name):
+
+    print(f"\n=========== TRAINING {name} ===========")
+
+    model.compile(
+        optimizer="adam",
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    history = model.fit(
+        X_train, y_train,
+        epochs=3,
+        batch_size=32,
+        validation_split=0.1,
+        verbose=1
+    )
+
+    # Graphs
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(history.history["accuracy"])
+    plt.plot(history.history["val_accuracy"])
+    plt.title(name + " Accuracy")
+
+    plt.subplot(1,2,2)
+    plt.plot(history.history["loss"])
+    plt.plot(history.history["val_loss"])
+    plt.title(name + " Loss")
+    plt.show()
+
+    # Predictions
+    y_pred = np.argmax(model.predict(X_test), axis=-1)
+
+    # Remove PAD tokens before evaluation
+    mask = y_test.flatten() != PAD_ID
+
+    y_true = y_test.flatten()[mask]
+    y_pred_f = y_pred.flatten()[mask]
+
+    print("\nClassification Report:")
+    print(classification_report(
+        y_true,
+        y_pred_f,
+        target_names=[t for t in tag_encoder.classes_ if t != "PAD"]
+    ))
+
+    return model
+
+
+# ========================================================================
+# 9. TRAIN MODELS (RUN ANY ONE IN EXAM)
+# ========================================================================
+rnn_model = build_pos_model("RNN")
+trained_rnn = train_model(rnn_model, "RNN")
+
+lstm_model = build_pos_model("LSTM")
+trained_lstm = train_model(lstm_model, "LSTM")
+
+bilstm_model = build_pos_model("BiLSTM")
+trained_bilstm = train_model(bilstm_model, "BiLSTM")
+
+
+# ========================================================================
+# 10. PREDICT POS TAGS FOR A SENTENCE
+# ========================================================================
+def predict_pos(sentence, model, name):
+
+    print(f"\n[{name}] Prediction:")
+    words = sentence.split()
+
+    seq = word_tokenizer.texts_to_sequences([words])
+    pad = pad_sequences(seq, maxlen=max_len)
+
+    preds = np.argmax(model.predict(pad)[0], axis=-1)
+
+    print("\nPredicted Tags:")
+    for w, t in zip(words, preds[:len(words)]):
+        print(w, "→", tag_encoder.inverse_transform([t])[0])
+
+
+# TEST PREDICTION
+predict_pos("The boy is playing football", trained_bilstm, "LSTM")
+# ========================================================================
+# NAMED ENTITY RECOGNITION (NER) — FIXED & ERROR-FREE VERSION
+# ========================================================================
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, Bidirectional, Dense, TimeDistributed
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
+
+
+# ------------------------------------------------------------------------
+# 1. LOAD NER DATASET
+# ------------------------------------------------------------------------
+df = pd.read_csv("ner_tagged_dataset.csv")
+print(df.head())
+
+
+# ------------------------------------------------------------------------
+# 2. GROUP WORDS & TAGS BY SENTENCE ID
+# ------------------------------------------------------------------------
+sentences = df.groupby("sentence")["word"].apply(list)
+tags = df.groupby("sentence")["ner_tag"].apply(list)
+
+print("\nSample Sentence:", sentences.iloc[0])
+print("Sample Tags:", tags.iloc[0])
+
+
+# ------------------------------------------------------------------------
+# 3. TOKENIZE WORDS
+# ------------------------------------------------------------------------
+word_tokenizer = Tokenizer(oov_token="<OOV>")
+word_tokenizer.fit_on_texts(sentences)
+
+X = word_tokenizer.texts_to_sequences(sentences)
+word_vocab = len(word_tokenizer.word_index) + 1
+
+
+# ------------------------------------------------------------------------
+# 4. LABEL ENCODER WITH MANUAL PAD TAG (FIX)
+# ------------------------------------------------------------------------
+all_tags = [t for sub in tags for t in sub]
+all_tags.append("PAD")      # <-- IMPORTANT FIX
+
+tag_encoder = LabelEncoder()
+tag_encoder.fit(all_tags)
+
+y_encoded = tags.apply(lambda t: tag_encoder.transform(t))
+tag_count = len(tag_encoder.classes_)
+
+print("\nNER Tags:", tag_encoder.classes_)
+
+
+# ------------------------------------------------------------------------
+# 5. PAD WORDS & TAGS
+# ------------------------------------------------------------------------
+max_len = max(sentences.apply(len))
+
+X_padded = pad_sequences(X, maxlen=max_len, padding="post")
+
+pad_value = tag_encoder.transform(["PAD"])[0]
+
+y_padded = pad_sequences(
+    y_encoded, maxlen=max_len, padding="post", value=pad_value
+)
+
+
+# ------------------------------------------------------------------------
+# 6. TRAIN–TEST SPLIT
+# ------------------------------------------------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    X_padded, y_padded, test_size=0.2, random_state=42
+)
+
+
+# ------------------------------------------------------------------------
+# 7. TRAINING FUNCTION
+# ------------------------------------------------------------------------
+def train_model(model, name):
+
+    print(f"\n========= Training {name} =========\n")
+
+    model.compile(
+        optimizer="adam",
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    history = model.fit(
+        X_train, y_train,
+        epochs=3,
+        batch_size=32,
+        validation_split=0.2,
+        verbose=1
+    )
+
+    # Graphs
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(history.history["accuracy"])
+    plt.plot(history.history["val_accuracy"])
+    plt.title(name + " Accuracy")
+    plt.legend(["Train","Val"])
+
+    plt.subplot(1,2,2)
+    plt.plot(history.history["loss"])
+    plt.plot(history.history["val_loss"])
+    plt.title(name + " Loss")
+    plt.legend(["Train","Val"])
+    plt.show()
+
+    # Predictions
+    y_pred = np.argmax(model.predict(X_test), axis=-1)
+
+    y_true_f = y_test.flatten()
+    y_pred_f = y_pred.flatten()
+
+    print("\nClassification Report:")
+    print(classification_report(
+        y_true_f, y_pred_f,
+        target_names=tag_encoder.classes_
+    ))
+
+    cm = confusion_matrix(y_true_f, y_pred_f)
+    sns.heatmap(cm, cmap="Blues")
+    plt.title(name + " Confusion Matrix")
+    plt.show()
+
+    return model
+
+
+# ------------------------------------------------------------------------
+# 8. MODEL 1 — RNN
+# ------------------------------------------------------------------------
+rnn_model = Sequential([
+    Embedding(word_vocab, 64, input_length=max_len),
+    SimpleRNN(128, return_sequences=True),
+    TimeDistributed(Dense(tag_count, activation="softmax"))
+])
+
+trained_rnn = train_model(rnn_model, "RNN")
+
+
+# ------------------------------------------------------------------------
+# 9. MODEL 2 — LSTM
+# ------------------------------------------------------------------------
+lstm_model = Sequential([
+    Embedding(word_vocab, 64, input_length=max_len),
+    LSTM(128, return_sequences=True),
+    TimeDistributed(Dense(tag_count, activation="softmax"))
+])
+
+trained_lstm = train_model(lstm_model, "LSTM")
+
+
+# ------------------------------------------------------------------------
+# 10. MODEL 3 — BiLSTM
+# ------------------------------------------------------------------------
+bilstm_model = Sequential([
+    Embedding(word_vocab, 64, input_length=max_len),
+    Bidirectional(LSTM(128, return_sequences=True)),
+    TimeDistributed(Dense(tag_count, activation="softmax"))
+])
+
+trained_bilstm = train_model(bilstm_model, "BiLSTM")
+
+
+# ------------------------------------------------------------------------
+# 11. NER PREDICTION
+# ------------------------------------------------------------------------
+def predict_ner(sentence, model, name):
+    print(f"\n[{name}]")
+    words = sentence.split()
+
+    seq = word_tokenizer.texts_to_sequences([words])
+    pad = pad_sequences(seq, maxlen=max_len)
+
+    preds = np.argmax(model.predict(pad)[0], axis=-1)
+
+    print("Sentence:", sentence)
+    print("Predicted Tags:")
+
+    for w, tag in zip(words, preds[:len(words)]):
+        print(w, "→", tag_encoder.inverse_transform([tag])[0])
+
+
+predict_ner("John visited Paris last year", trained_bilstm, "LSTM")
