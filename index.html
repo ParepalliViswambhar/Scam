@@ -49,7 +49,7 @@
 </head>
 <body>
 
-    <a class="download-link" href="CC-lab.txt" download>Download CC-lab.txt</a>
+    <!-- <a class="download-link" href="CC-lab.txt" download>Download CC-lab.txt</a>
     <a class="download-link" href="IEEE PAPER.docx" download>IEE Paper docx</a>
     <a class="download-link" href="https://drive.google.com/drive/folders/1QE0QtxOe9sZ6naIlInYUzsuWSU7Romyp?usp=sharing" target="_blank">Google Drive Link</a>
     <a class="download-link" href="http://toofaanlab.teleuniv.in:536/" target="_blank">Toofaan Lab Website</a>
@@ -199,7 +199,377 @@ in any 1 do: nano h.txt and put text
         <li>Create an EC2 for the public subnet: Edit Network &rarr; VPC (custom), Subnet: public, select existing security group: custom made.</li>
         <li>Do the same for the EC2 of the private subnet.</li>
         <li>Connecting to both: public subnet EC2 will connect, private will not.</li>
+    </ol> -->
+
+
+    <h2>Exp-7 &mdash; S3-DynamoDB Integration</h2>
+    <ol>
+        <li>Create an S3 bucket normally.</li>
+        <li>Create a DynamoDB table with a partition key as <strong>id</strong>.</li>
+        <li>Create a Lambda function: Author from scratch, Role: <strong>LabRole</strong>, Runtime: <strong>Python</strong>.</li>
+        <li>Add trigger to Lambda: Select S3 in trigger config, select the bucket.</li>
+        <li>In the Lambda code, put this:</li>
     </ol>
+    <pre>import boto3
+from uuid import uuid4
+
+def lambda_handler(event, context):
+    s3 = boto3.client("s3")
+    dynamodb = boto3.resource('dynamodb')
+    
+    # Check if the 'Records' key is present in the event
+    if 'Records' in event:
+        # Iterate over each record in the event
+        for record in event['Records']:
+            bucket_name = record['s3']['bucket']['name']
+            object_key = record['s3']['object']['key']
+            size = record['s3']['object'].get('size', -1)
+            event_name = record.get('eventName', 'Unknown')
+            event_time = record.get('eventTime', 'Unknown')
+            
+            dynamoTable = dynamodb.Table('table-name')
+            dynamoTable.put_item(
+                Item={
+                    'id': str(uuid4()), 
+                    'Bucket': bucket_name, 
+                    'Object': object_key,
+                    'Size': size, 
+                    'Event': event_name, 
+                    'EventTime': event_time
+                })
+    else:
+        # Log a message indicating that the 'Records' key is missing
+        print("No 'Records' key found in the event.")</pre>
+    <ol start="6">
+        <li>Click <strong>Deploy</strong>.</li>
+        <li>Upload something in the S3 bucket, then click <strong>Explore Items</strong> in DynamoDB, click <strong>Run</strong>.</li>
+        <li>In Lambda, show logs if asked.</li>
+    </ol>
+
+    <hr>
+
+    <h2>Exp-8 &mdash; SNS &amp; SQS</h2>
+
+    <h3>Part 1: SNS Email Notification</h3>
+    <ol>
+        <li>Create SNS with any name, Type: <strong>Standard</strong>.</li>
+        <li>Create subscription: Protocol: <strong>Email</strong>, Endpoint: your email.</li>
+        <li>Confirm subscription from email.</li>
+        <li>Publish message: Put something in subject and body, then send.</li>
+    </ol>
+
+    <h3>Part 2: S3 to SNS Integration</h3>
+    <ol>
+        <li>Create S3 bucket normally.</li>
+        <li>Edit access policy of SNS and put this:</li>
+    </ol>
+    <pre>{
+  "Version": "2012-10-17",
+  "Id": "example-ID",
+  "Statement": [
+    {
+      "Sid": "Example SNS topic policy",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": [
+        "SNS:Publish"
+      ],
+      "Resource": "SNS topic ARN",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": "s3 bucket ARN"
+        },
+        "StringEquals": {
+          "aws:SourceAccount": "account id"
+        }
+      }
+    }
+  ]
+}</pre>
+    <ol start="3">
+        <li>Open S3 &rarr; Properties &rarr; Event Notification &rarr; Create Event Notification.</li>
+        <li>Event name: any name, Event type: <strong>All objects create events</strong>, Destination: <strong>SNS topic</strong>.</li>
+        <li>Test by uploading something, check email.</li>
+    </ol>
+
+    <h3>Part 3: SQS Basic Operations</h3>
+    <ol>
+        <li>Create SQS, Type: <strong>Standard</strong>, any name.</li>
+        <li>Click <strong>Send and Receive Messages</strong>, message body: some message, click <strong>Send</strong>.</li>
+        <li>Poll messages to see the message, you can delete also.</li>
+    </ol>
+
+    <h3>Part 4: S3 &rarr; SNS &rarr; SQS &rarr; Lambda Pipeline</h3>
+    <ol>
+        <li>Create S3, SNS, SQS normally.</li>
+        <li>Create subscription in SNS: Protocol: <strong>SQS</strong>, Endpoint: <strong>SQS ARN</strong>.</li>
+        <li>Add access policy in SQS by editing and putting:</li>
+    </ol>
+    <pre>{
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "sns.amazonaws.com"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "SQS ARN",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "SNS ARN"
+        }
+      }
+    }
+  ]
+}</pre>
+    <ol start="4">
+        <li>Add access policy in SNS also:</li>
+    </ol>
+    <pre>{
+  "Version": "2012-10-17",
+  "Id": "example-ID",
+  "Statement": [
+    {
+      "Sid": "Example SNS topic policy",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": [
+        "SNS:Publish"
+      ],
+      "Resource": "SNS topic ARN",
+      "Condition": {
+        "ArnLike": {
+          "aws:SourceArn": "S3 bucket ARN"
+        },
+        "StringEquals": {
+          "aws:SourceAccount": "Account ID"
+        }
+      }
+    }
+  ]
+}</pre>
+    <ol start="5">
+        <li>Open S3 &rarr; Properties &rarr; Event Notification &rarr; Event name: <strong>S3UploadEvent</strong>, Event type: <strong>All object create events</strong>, Destination: <strong>SNS topic</strong>.</li>
+        <li>Test by uploading something in S3, poll messages from SQS.</li>
+        <li>Configure Lambda: Create Lambda function normally, add trigger: <strong>SQS</strong>, select your SQS.</li>
+        <li>Lambda code:</li>
+    </ol>
+    <pre>def lambda_handler(event, context):
+    for record in event['Records']:
+        print("Message received from SQS:")
+        print(record['body'])
+    
+    return {
+        'statusCode': 200,
+        'body': 'Message processed successfully'
+    }</pre>
+    <ol start="9">
+        <li>Deploy, upload something in S3, and this will trigger everything. Watch logs in Lambda.</li>
+    </ol>
+
+    <hr>
+
+    <h2>Exp-9 &mdash; ELB + Auto Scaling</h2>
+
+    <h3>Part 1: EC2 + Load Balancer</h3>
+    <h4>1) Create EC2 Instances (2 servers)</h4>
+    <p>Launch instance &rarr; Amazon Linux &rarr; t2.micro</p>
+    <p>Security group:</p>
+    <ul>
+        <li>SSH (22) &rarr; your IP</li>
+        <li>HTTP (80) &rarr; anywhere</li>
+    </ul>
+    <p>Run in both:</p>
+    <pre>sudo su
+yum update -y
+yum install httpd -y
+systemctl start httpd
+systemctl enable httpd</pre>
+    <p><strong>Server 1:</strong></p>
+    <pre>echo "This is Server 1" > /var/www/html/index.html</pre>
+    <p><strong>Server 2:</strong></p>
+    <pre>echo "This is Server 2" > /var/www/html/index.html</pre>
+    <p>Result: 2 working web servers</p>
+
+    <h4>2) Create Load Balancer</h4>
+    <ol>
+        <li>Security group: EC2 &rarr; Security Groups &rarr; Create Security Group, allow HTTP, HTTPS traffic.</li>
+        <li>Create Load Balancer: EC2 &rarr; Load Balancers &rarr; Create Load Balancer &rarr; <strong>Application Load Balancer</strong> (everything default), select all AZ, attach the above security group.</li>
+        <li>Create new target group: Put name, other default.</li>
+        <li>Register targets: Attach the instances.</li>
+        <li>Add the target group to load balancer.</li>
+    </ol>
+
+    <h4>3) Test</h4>
+    <ul>
+        <li>Copy DNS of LB</li>
+        <li>Open in browser</li>
+        <li>Refresh &rarr; alternates servers</li>
+        <li>Output: traffic distributed</li>
+    </ul>
+
+    <h3>Part 2: Auto Scaling</h3>
+    <h4>1) Create AMI</h4>
+    <ul>
+        <li>EC2 &rarr; Select instance</li>
+        <li>Actions &rarr; Image &rarr; Create Image</li>
+        <li>Name: anything</li>
+        <li>This is your base template</li>
+    </ul>
+
+    <h4>2) Create Launch Template</h4>
+    <p>EC2 &rarr; Launch Templates &rarr; Create</p>
+    <p>Config:</p>
+    <ul>
+        <li>AMI &rarr; select created AMI</li>
+        <li>Instance type &rarr; t2.micro</li>
+        <li>Key pair &rarr; select</li>
+        <li>Security group &rarr; allow HTTP</li>
+    </ul>
+
+    <h4>3) Create Auto Scaling Group</h4>
+    <p>EC2 &rarr; Auto Scaling Groups &rarr; Create</p>
+    <p>Config:</p>
+    <ul>
+        <li>Launch template &rarr; select</li>
+        <li>VPC + subnets &rarr; select all</li>
+    </ul>
+
+    <h4>4) Attach Load Balancer</h4>
+    <p>Select:</p>
+    <ul>
+        <li>Existing Load Balancer</li>
+        <li>Target group</li>
+    </ul>
+    <p>Health check:</p>
+    <ul>
+        <li>Type &rarr; HTTP</li>
+        <li>Grace period &rarr; 300 sec</li>
+    </ul>
+
+    <h4>5) Set Capacity</h4>
+    <ul>
+        <li>Desired: 2</li>
+        <li>Min: 1</li>
+        <li>Max: 4</li>
+    </ul>
+
+    <h4>6) Create ASG</h4>
+    <p>Review &rarr; Create</p>
+
+    <h3>Part 3: Testing</h3>
+    <h4>1) Check Instances</h4>
+    <ul>
+        <li>Target group &rarr; healthy instances</li>
+        <li>ASG &rarr; instances running</li>
+    </ul>
+
+    <h4>2) Test Auto Healing</h4>
+    <ul>
+        <li>Terminate one instance</li>
+        <li>Result: ASG launches new instance automatically</li>
+    </ul>
+
+    <h4>3) Test Load Balancing</h4>
+    <ul>
+        <li>Open LB DNS</li>
+        <li>Refresh</li>
+    </ul>
+
+    <hr>
+
+    <h2>Exp-10 &mdash; Elastic Beanstalk</h2>
+    <ol>
+        <li>Create Elastic Beanstalk, some name.</li>
+        <li>Create environment &rarr; Web server environment.</li>
+        <li>Platform: <strong>Tomcat</strong>.</li>
+        <li>Upload WAR code from: <a href="https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/" target="_blank">https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/</a></li>
+        <li>Role: <strong>LabRole</strong>, Key pair: select.</li>
+        <li>Configure network: VPC (default), Subnets, Enable public IP.</li>
+        <li>Instance: <strong>t2.micro</strong>, Type: <strong>Load Balancer</strong>, Min: 1, Max: 2.</li>
+        <li>Create.</li>
+        <li>Open the URL (domain link).</li>
+        <li>Upload and Deploy &rarr; Upload same with different version label, and open URL again.</li>
+    </ol>
+
+    <hr>
+
+    <h2>Exp-11 &mdash; Amazon Lex</h2>
+    <ol>
+        <li>Open Lex &rarr; Create bot &rarr; Name (everything default).</li>
+        <li>Intent &rarr; Some name &rarr; Add utterances:
+            <ul>
+                <li>I want to book a hotel</li>
+                <li>Book a room</li>
+                <li>Reserve hotel</li>
+                <li>I need a room</li>
+            </ul>
+        </li>
+        <li>Create slots:
+            <ul>
+                <li><strong>age</strong> &rarr; number &rarr; question</li>
+                <li>Advanced &rarr; Branch &rarr; if {age} &lt; 18 &rarr; message: not eligible</li>
+                <li>More slots: <strong>city</strong>, <strong>date</strong>, <strong>nights</strong></li>
+            </ul>
+        </li>
+        <li>Custom slot:
+            <ul>
+                <li>Slot types &rarr; Add slot type &rarr; Add blank slot type</li>
+                <li><strong>RoomType:</strong> single, double, suite</li>
+            </ul>
+        </li>
+        <li>Add slot <strong>RoomType</strong>, Advanced &rarr; Slot prompts &rarr; More prompt options &rarr; Add &rarr; Add card groups &rarr; button.</li>
+        <li>Initial Response:
+            <pre>Welcome to Hotel Booking! What is your name?</pre>
+        </li>
+        <li>Confirmation:
+            <pre>Do you want to confirm booking in {location} for {nights} nights?</pre>
+        </li>
+        <li>Build &rarr; Test.</li>
+    </ol>
+
+    <hr>
+
+    <h2>Exp-12 &mdash; Creating IAM User with Permissions</h2>
+    <ol>
+        <li>IAM &rarr; IAM users &rarr; Create &rarr; Name &rarr; Provide user access (tick).</li>
+        <li>Give credentials, Access: <strong>AmazonS3FullAccess</strong>.</li>
+        <li>Login, try creating EC2 (will not happen), create bucket.</li>
+        <li>IAM &rarr; Users &rarr; Security credentials &rarr; Create access key &rarr; CLI.</li>
+        <li>In CMD on your system:</li>
+    </ol>
+    <pre>aws configure</pre>
+    <p>Enter:</p>
+    <ul>
+        <li>Access Key ID</li>
+        <li>Secret Access Key</li>
+        <li>Default region: (e.g., ap-south-1)</li>
+        <li>Default output: json</li>
+    </ul>
+    <p>Run commands:</p>
+    <pre>aws s3 ls
+aws s3 mb s3://your-unique-bucket-name
+aws iam list-users   (won't work)</pre>
+
+    <hr>
+
+    <h2>Exp-13 &mdash; IAM Roles</h2>
+    <ol>
+        <li>IAM Console &rarr; Roles &rarr; Create role.</li>
+        <li>Use case: Choose <strong>EC2</strong>.</li>
+        <li>Permissions: <strong>AmazonS3FullAccess</strong>.</li>
+        <li>Name (something), Create.</li>
+        <li>Create EC2 instance normally.</li>
+        <li>Actions &rarr; Security &rarr; Modify IAM role.</li>
+        <li>Select <strong>EC2-S3-Role</strong> &rarr; Update.</li>
+        <li>Connect to EC2 and run:</li>
+    </ol>
+    <pre>aws s3 ls
+aws ec2 describe-instances   (doesn't work)</pre>
 
 </body>
 </html>
