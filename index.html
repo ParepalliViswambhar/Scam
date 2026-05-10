@@ -111,8 +111,13 @@ mount -a
 reboot and check for files</pre>
 
     <h3>c) Move Volume to Another EC2</h3>
-    <p>Create another EC2 with the same AZ, detach the volume from the old EC2 and attach to the new one.</p>
-    <pre>mkdir /mnt/vish
+    <ol>
+        <li>Create another EC2 with the same AZ.</li>
+        <li>Detach the volume from the old EC2 and attach to the new one.</li>
+        <li>Connect to the new EC2 and run:</li>
+    </ol>
+    <pre>sudo su
+mkdir /mnt/vish
 mount /dev/nvme1n1p1 /mnt/vish
 lsblk -fs</pre>
 
@@ -129,6 +134,7 @@ lsblk -fs</pre>
     <h2>Exp-3 &mdash; EFS (Elastic File System)</h2>
     <ol>
         <li>Create 2 EC2s with 2 different availability zones and include NFS in the custom TCP.</li>
+        <li>Create a new security group (NFS) and attach it to the EFS</li>
         <li>Create an EFS with only 2 availability zones.</li>
         <li>Open consoles of both EC2s.</li>
         <li>Run the following commands on both:</li>
@@ -205,6 +211,34 @@ in any 1 do: nano h.txt and put text
         <li>Connecting to both: public subnet EC2 will connect, private will not.</li>
     </ol>
 
+    <h2>Exp-6 &mdash; Bastion Server</h2>
+    <ol>
+        <li>Follow the same process as Exp-5 until creation of the route tables.</li>
+        <li>Create an Elastic IP.</li>
+        <li>Create a NAT Gateway: Method of Elastic IP &rarr; Manual, select the created IP.</li>
+        <li>Attach the NAT Gateway to the private route table.</li>
+        <li>Create 2 EC2 instances for public and private subnets and attach the 2 subnets.</li>
+        <li>Open the public EC2 instance and connect it via SSH. In the terminal where .pem file is located, run:</li>
+    </ol>
+    <pre>ssh -i "key.pem" ec2-user@&lt;public-ip&gt;</pre>
+    <ol start="7">
+        <li>Open another terminal and copy the key to the public EC2:</li>
+    </ol>
+    <pre>scp -i yourkey.pem yourkey.pem ec2-user@&lt;public-ip&gt;:~</pre>
+    <ol start="8">
+        <li>In terminal 1 (connected to public EC2), run:</li>
+    </ol>
+    <pre>chmod 400 yourkey.pem</pre>
+    <ol start="9">
+        <li>Open the EC2 with private subnet and connect it via SSH command from terminal 1:</li>
+    </ol>
+    <pre>ssh -i yourkey.pem ec2-user@&lt;private-ip&gt;</pre>
+    <ol start="10">
+        <li>After connection success, run to check internet access:</li>
+    </ol>
+    <pre>ping google.com</pre>
+
+    <hr>
 
     <h2>Exp-7 &mdash; S3-DynamoDB Integration</h2>
     <ol>
