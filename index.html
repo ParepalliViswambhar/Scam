@@ -1,614 +1,567 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Download ZIP File</title>
-    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Experiments</title>
     <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --ink: #172033;
+            --muted: #5d687a;
+            --accent: #2563eb;
+            --accent-soft: #dbeafe;
+            --border: #d7deea;
+            --code-bg: #0f172a;
+            --code-ink: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 20px;
-            line-height: 1.7;
-            color: #222;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 45%, #ffffff 100%);
+            color: var(--ink);
+            line-height: 1.6;
         }
-        h2 {
-            margin-top: 40px;
-            border-bottom: 2px solid #555;
-            padding-bottom: 5px;
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 56px;
         }
-        h3 {
-            margin-top: 20px;
-            margin-bottom: 5px;
+
+        header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.07);
+            margin-bottom: 24px;
         }
-        ol {
-            margin: 8px 0 8px 20px;
-            padding: 0;
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 4vw, 3rem);
         }
-        li {
-            margin-bottom: 5px;
+
+        .intro {
+            margin: 0;
+            color: var(--muted);
+            max-width: 820px;
         }
-        pre {
-            background: #f4f4f4;
-            border-left: 4px solid #888;
-            padding: 10px 15px;
-            margin: 10px 0;
-            font-size: 14px;
-            white-space: pre-wrap;
+
+        .experiment {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 18px 0;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
         }
-        .download-link {
+
+        .experiment h2 {
+            margin: 0 0 12px;
+            font-size: 1.4rem;
+        }
+
+        .tag {
             display: inline-block;
-            margin-bottom: 30px;
-            font-size: 16px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            margin-bottom: 14px;
         }
-        hr {
-            border: none;
-            border-top: 1px solid #ccc;
-            margin: 30px 0;
+
+        p {
+            margin-top: 0;
+            color: var(--muted);
+        }
+
+        pre {
+            margin: 0;
+            padding: 18px;
+            overflow-x: auto;
+            border-radius: 16px;
+            background: var(--code-bg);
+            color: var(--code-ink);
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        code {
+            font-family: Consolas, Monaco, "Courier New", monospace;
+        }
+
+        .note {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .file-name {
+            display: inline-block;
+            margin: 0 0 12px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            border: 1px solid #bfd7ff;
+            color: #0f3fbf;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 640px) {
+            main {
+                padding: 18px 12px 40px;
+            }
+
+            header,
+            .experiment {
+                padding: 18px;
+                border-radius: 16px;
+            }
+
+            pre {
+                font-size: 13px;
+            }
         }
     </style>
-    
-    <!-- Vercel Web Analytics -->
-    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 </head>
 <body>
-    <a href="All_exps.zip" class="download-link" download>Download All Experiments (ZIP)</a>
-    <a class="download-link" href="CC-lab.txt" download>Download CC-lab.txt</a>
-    <a class="download-link" href="IEEE.docx" download>Download IEEE Paper.docx</a>
-    <a class="download-link" href="https://drive.google.com/drive/folders/1QE0QtxOe9sZ6naIlInYUzsuWSU7Romyp?usp=sharing" target="_blank">Google Drive Link</a>
-    <a class="download-link" href="http://toofaanlab.teleuniv.in:536/" target="_blank">Toofaan Lab Website</a>
-    <h2>Exp-1 &mdash; EC2 Access</h2>
+    <main>
+        <header>
+            <h1>React Experiments</h1>
+            <p class="intro">Compact React code snippets for each experiment. Each section keeps only the main logic after the experiment number, as requested.</p>
+        </header>
 
-    <h3>a) Connect using PuTTY (.ppk)</h3>
-    <ol>
-        <li>Create an EC2 with a key pair of .ppk, copy the IP of it.</li>
-        <li>Open PuTTY, paste the IP.</li>
-        <li>Left side: Connection &rarr; SSH &rarr; Auth &rarr; Credentials, browse the .ppk and click Open.</li>
-        <li>If Linux login as: <strong>ec2-user</strong>, if Ubuntu login as: <strong>ubuntu</strong>. &nbsp; Test: <code>whoami</code> (console)</li>
-    </ol>
+        <section class="experiment">
+            <div class="tag">Experiment 1</div>
+            <h2>JSX and Virtual DOM</h2>
+            <div class="file-name">App.js</div>
+            <pre><code>import React, { useState } from "react";
 
-    <h3>b) Convert .pem to .ppk</h3>
-    <p>Convert .pem file to .ppk using PuTTYGen, save as private key file, then follow the same process as above.</p>
+function App() {
+  const [count, setCount] = useState(0);
 
-    <h3>c) RDP (Windows EC2)</h3>
-    <ol>
-        <li>Create an EC2 &mdash; in security groups add RDP in the custom TCP, select OS: Windows.</li>
-        <li>Click on Connect &rarr; using RDP client &rarr; click Get Password &rarr; upload the .pem file to decrypt.</li>
-        <li>Click the Windows symbol and search RDP, paste the IP of the EC2.</li>
-        <li>Login as <strong>Administrator</strong>, password: decrypted password.</li>
-        <li>You can see the new system.</li>
-    </ol>
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;JSX and Virtual DOM Demo&lt;/h1&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
 
-    <hr>
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Increment
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
 
-    <h2>Exp-2 &mdash; Volumes &amp; Snapshots</h2>
+export default App;</code></pre>
+        </section>
 
-    <h3>Volumes</h3>
+        <section class="experiment">
+            <div class="tag">Experiment 2</div>
+            <h2>Product Listing Using Components and Props</h2>
+            <div class="file-name">ProductCard.js</div>
+            <pre><code>import React from "react";
 
-    <h3>a) Attach a Volume</h3>
-    <ol>
-        <li>Create an EC2, select an AZ.</li>
-        <li>Create a volume with the same AZ, size anything.</li>
-        <li>Attach volume to the running EC2, device name: <code>/dev/sdf</code>.</li>
-        <li>Open EC2 console and run <code>lsblk</code>.</li>
-    </ol>
+function ProductCard({ name, price, category }) {
+  return (
+    &lt;div
+      style={{
+        border: "1px solid black",
+        margin: "10px",
+        padding: "10px"
+      }}
+    &gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;Price: ₹{price}&lt;/p&gt;
+      &lt;p&gt;Category: {category}&lt;/p&gt;
 
-    <h3>b) Format and Mount the Volume</h3>
-    <p>After attaching and connecting to EC2:</p>
-    <pre>sudo su
-lsblk -fs
-fdisk /dev/nvme1n1    (m, n, p, , , , w)
-lsblk
-mkfs.xfs /dev/nvme1n1p1
-mkdir /mnt/vish
-mount /dev/nvme1n1p1 /mnt/vish
-df -h
-blkid /dev/nvme1n1p1
-(COPY UUID)
-nano /etc/fstab
-(inside that, last line add) =UUID=&lt;UUID-value&gt;   /mnt/vish   xfs   defaults,nofail   0   0
-mount -a
-reboot and check for files</pre>
+      &lt;button onClick={() =&gt; alert(`${name} Purchased`)}&gt;
+        Buy Now
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
 
-    <h3>c) Move Volume to Another EC2</h3>
-    <ol>
-        <li>Create another EC2 with the same AZ.</li>
-        <li>Detach the volume from the old EC2 and attach to the new one.</li>
-        <li>Connect to the new EC2 and run:</li>
-    </ol>
-    <pre>sudo su
-mkdir /mnt/vish
-mount /dev/nvme1n1p1 /mnt/vish
-lsblk -fs</pre>
+export default ProductCard;</code></pre>
+            <div class="file-name">App.js</div>
+            <pre><code>import ProductCard from "./ProductCard";
 
-    <h3>Snapshots</h3>
-    <ol>
-        <li>For a given volume you created, click on Actions &rarr; Create Snapshot.</li>
-        <li>From the Snapshots section, click on Copy Snapshot and select some region.</li>
-        <li>Switch to that region and create a volume for it from Actions.</li>
-        <li>Attach an EC2 in that region to the created volume with the same AZ. (run <code>lsblk</code> if needed)</li>
-    </ol>
-
-    <hr>
-
-    <h2>Exp-3 &mdash; EFS (Elastic File System)</h2>
-    <ol>
-        <li>Create 2 EC2s with 2 different availability zones and include NFS in the custom TCP.</li>
-        <li>Create a new security group (NFS) and attach it to the EFS</li>
-        <li>Create an EFS with only 2 availability zones.</li>
-        <li>Open consoles of both EC2s.</li>
-        <li>Run the following commands on both:</li>
-    </ol>
-    <pre>sudo su
-mkdir efs
-yum install -y amazon-efs-utils
-(connect the efs with dns) efs &rarr; connect &rarr; dns &rarr; paste in console
-cd efs
-in any 1 do: nano h.txt and put text
-(it shows in the other EC2)</pre>
-
-    <hr>
-
-    <h2>EXP-4 &mdash; S3</h2>
-
-    <h3>a) Public Access to S3 Object</h3>
-    <ol>
-        <li>Create an S3 bucket, allow ACLs under ownership.</li>
-        <li>Block all public access &mdash; uncheck that (very important).</li>
-        <li>Enable versioning (better, because others need it).</li>
-        <li>After creation: Bucket &rarr; Permissions &rarr; ACL &rarr; Public Access &rarr; right side tick.</li>
-        <li>Upload any image, click on it &rarr; Permissions &rarr; ACL &rarr; Public Access &rarr; left and right tick.</li>
-        <li>Properties &rarr; Copy link &rarr; open in incognito.</li>
-    </ol>
-
-    <h3>b) Versioning</h3>
-    <ol>
-        <li>Enable versioning (compulsory).</li>
-        <li>Upload a text file, change it locally, and upload again.</li>
-        <li>Buckets &rarr; Objects &rarr; click Show Versions &rarr; you can see both versions.</li>
-        <li>Delete the latest version and the old version still shows up.</li>
-    </ol>
-
-    <h3>c) Cross Region Replication</h3>
-    <ol>
-        <li>Create 1 more bucket in a different region with the same process including versioning enabled.</li>
-        <li>Go to first bucket &rarr; Management &rarr; Replication Rules.</li>
-        <li>Status = Enable, Source bucket = Apply to all objects, Destination bucket = select the created one, IAM Role = Lab Role. Replicate existing objects &rarr; No (this option comes after creating).</li>
-        <li>Upload any file in bucket 1 &mdash; it will automatically show in the 2nd bucket.</li>
-    </ol>
-
-    <h3>d) Static Website Hosting</h3>
-    <ol>
-        <li>Upload <code>index.html</code> and <code>error.html</code> into S3 following the normal process including ACL settings and allowing static hosting. Put index and error filenames in the fields.</li>
-        <li>Click on <code>index.html</code> &rarr; Permissions &rarr; Everyone &rarr; both tick. Same with <code>error.html</code>.</li>
-        <li>Bucket &rarr; Properties &rarr; scroll to Static Website Hosting &rarr; copy URL &rarr; check.</li>
-    </ol>
-
-    <hr>
-
-    <h2>EXP-5 &mdash; VPC</h2>
-    <ol>
-        <li>Create a VPC, CIDR: <code>10.0.0.0/16</code>.</li>
-        <li>
-            Create subnets:
-            <ul>
-                <li><strong>Public:</strong> AZ-east-1a, subnet CIDR: <code>10.0.1.0/24</code></li>
-                <li><strong>Private:</strong> AZ-east-1a, subnet CIDR: <code>10.0.2.0/24</code></li>
-            </ul>
-        </li>
-        <li>Create an Internet Gateway, attach the VPC (shown after creation).</li>
-        <li>
-            Create Route Tables:
-            <ul>
-                <li><strong>Public:</strong> Create &rarr; Actions &rarr; Edit Routes &rarr; Add Route &rarr; Destination: <code>0.0.0.0/0</code>, Internet Gateway (custom made) &rarr; Actions &rarr; Edit Subnet Associations &rarr; add the public subnet.</li>
-                <li><strong>Private:</strong> Create &rarr; Actions &rarr; Edit Subnet Associations &rarr; add the private subnet.</li>
-            </ul>
-        </li>
-        <li>Public subnet &rarr; Actions &rarr; Edit Subnet Settings &rarr; Auto-assign IP (tick).</li>
-        <li>Create a security group, add the custom VPC under creation, inbound rules: SSH, HTTP, HTTPS.</li>
-        <li>Create an EC2 for the public subnet: Edit Network &rarr; VPC (custom), Subnet: public, select existing security group: custom made.</li>
-        <li>Do the same for the EC2 of the private subnet.</li>
-        <li>Connecting to both: public subnet EC2 will connect, private will not.</li>
-    </ol>
-
-    <h2>Exp-6 &mdash; Bastion Server</h2>
-    <ol>
-        <li>Follow the same process as Exp-5 until creation of the route tables.</li>
-        <li>Create an Elastic IP.</li>
-        <li>Create a NAT Gateway: Method of Elastic IP &rarr; Manual, select the created IP.</li>
-        <li>Attach the NAT Gateway to the private route table.</li>
-        <li>Create 2 EC2 instances for public and private subnets and attach the 2 subnets.</li>
-        <li>Open the public EC2 instance and connect it via SSH. In the terminal where .pem file is located, run:</li>
-    </ol>
-    <pre>ssh -i "key.pem" ec2-user@&lt;public-ip&gt;</pre>
-    <ol start="7">
-        <li>Open another terminal and copy the key to the public EC2:</li>
-    </ol>
-    <pre>scp -i yourkey.pem yourkey.pem ec2-user@&lt;public-ip&gt;:~</pre>
-    <ol start="8">
-        <li>In terminal 1 (connected to public EC2), run:</li>
-    </ol>
-    <pre>chmod 400 yourkey.pem</pre>
-    <ol start="9">
-        <li>Open the EC2 with private subnet and connect it via SSH command from terminal 1:</li>
-    </ol>
-    <pre>ssh -i yourkey.pem ec2-user@&lt;private-ip&gt;</pre>
-    <ol start="10">
-        <li>After connection success, run to check internet access:</li>
-    </ol>
-    <pre>ping google.com</pre>
-
-    <hr>
-
-    <h2>Exp-7 &mdash; S3-DynamoDB Integration</h2>
-    <ol>
-        <li>Create an S3 bucket normally.</li>
-        <li>Create a DynamoDB table with a partition key as <strong>id</strong>.</li>
-        <li>Create a Lambda function: Author from scratch, Role: <strong>LabRole</strong>, Runtime: <strong>Python</strong>.</li>
-        <li>Add trigger to Lambda: Select S3 in trigger config, select the bucket.</li>
-        <li>In the Lambda code, put this:</li>
-    </ol>
-    <pre>import boto3
-from uuid import uuid4
-
-def lambda_handler(event, context):
-    s3 = boto3.client("s3")
-    dynamodb = boto3.resource('dynamodb')
-    
-    # Check if the 'Records' key is present in the event
-    if 'Records' in event:
-        # Iterate over each record in the event
-        for record in event['Records']:
-            bucket_name = record['s3']['bucket']['name']
-            object_key = record['s3']['object']['key']
-            size = record['s3']['object'].get('size', -1)
-            event_name = record.get('eventName', 'Unknown')
-            event_time = record.get('eventTime', 'Unknown')
-            
-            dynamoTable = dynamodb.Table('table-name')
-            dynamoTable.put_item(
-                Item={
-                    'id': str(uuid4()), 
-                    'Bucket': bucket_name, 
-                    'Object': object_key,
-                    'Size': size, 
-                    'Event': event_name, 
-                    'EventTime': event_time
-                })
-    else:
-        # Log a message indicating that the 'Records' key is missing
-        print("No 'Records' key found in the event.")</pre>
-    <ol start="6">
-        <li>Click <strong>Deploy</strong>.</li>
-        <li>Upload something in the S3 bucket, then click <strong>Explore Items</strong> in DynamoDB, click <strong>Run</strong>.</li>
-        <li>In Lambda, show logs if asked.</li>
-    </ol>
-
-    <hr>
-
-    <h2>Exp-8 &mdash; SNS &amp; SQS</h2>
-
-    <h3>Part 1: SNS Email Notification</h3>
-    <ol>
-        <li>Create SNS with any name, Type: <strong>Standard</strong>.</li>
-        <li>Create subscription: Protocol: <strong>Email</strong>, Endpoint: your email.</li>
-        <li>Confirm subscription from email.</li>
-        <li>Publish message: Put something in subject and body, then send.</li>
-    </ol>
-
-    <h3>Part 2: S3 to SNS Integration</h3>
-    <ol>
-        <li>Create S3 bucket normally.</li>
-        <li>Edit access policy of SNS and put this:</li>
-    </ol>
-    <pre>{
-  "Version": "2012-10-17",
-  "Id": "example-ID",
-  "Statement": [
+function App() {
+  const products = [
     {
-      "Sid": "Example SNS topic policy",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Action": [
-        "SNS:Publish"
-      ],
-      "Resource": "SNS topic ARN",
-      "Condition": {
-        "ArnLike": {
-          "aws:SourceArn": "s3 bucket ARN"
-        },
-        "StringEquals": {
-          "aws:SourceAccount": "account id"
-        }
-      }
-    }
-  ]
-}</pre>
-    <ol start="3">
-        <li>Open S3 &rarr; Properties &rarr; Event Notification &rarr; Create Event Notification.</li>
-        <li>Event name: any name, Event type: <strong>All objects create events</strong>, Destination: <strong>SNS topic</strong>.</li>
-        <li>Test by uploading something, check email.</li>
-    </ol>
-
-    <h3>Part 3: SQS Basic Operations</h3>
-    <ol>
-        <li>Create SQS, Type: <strong>Standard</strong>, any name.</li>
-        <li>Click <strong>Send and Receive Messages</strong>, message body: some message, click <strong>Send</strong>.</li>
-        <li>Poll messages to see the message, you can delete also.</li>
-    </ol>
-
-    <h3>Part 4: S3 &rarr; SNS &rarr; SQS &rarr; Lambda Pipeline</h3>
-    <ol>
-        <li>Create S3, SNS, SQS normally.</li>
-        <li>Create subscription in SNS: Protocol: <strong>SQS</strong>, Endpoint: <strong>SQS ARN</strong>.</li>
-        <li>Add access policy in SQS by editing and putting:</li>
-    </ol>
-    <pre>{
-  "Statement": [
+      id: 1,
+      name: "Laptop",
+      price: 50000,
+      category: "Electronics"
+    },
     {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "sns.amazonaws.com"
-      },
-      "Action": "sqs:SendMessage",
-      "Resource": "SQS ARN",
-      "Condition": {
-        "ArnEquals": {
-          "aws:SourceArn": "SNS ARN"
-        }
-      }
-    }
-  ]
-}</pre>
-    <ol start="4">
-        <li>Add access policy in SNS also:</li>
-    </ol>
-    <pre>{
-  "Version": "2012-10-17",
-  "Id": "example-ID",
-  "Statement": [
+      id: 2,
+      name: "Mobile",
+      price: 20000,
+      category: "Electronics"
+    },
     {
-      "Sid": "Example SNS topic policy",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Action": [
-        "SNS:Publish"
-      ],
-      "Resource": "SNS topic ARN",
-      "Condition": {
-        "ArnLike": {
-          "aws:SourceArn": "S3 bucket ARN"
-        },
-        "StringEquals": {
-          "aws:SourceAccount": "Account ID"
-        }
-      }
+      id: 3,
+      name: "Shoes",
+      price: 1500,
+      category: "Fashion"
     }
-  ]
-}</pre>
-    <ol start="5">
-        <li>Open S3 &rarr; Properties &rarr; Event Notification &rarr; Event name: <strong>S3UploadEvent</strong>, Event type: <strong>All object create events</strong>, Destination: <strong>SNS topic</strong>.</li>
-        <li>Test by uploading something in S3, poll messages from SQS.</li>
-        <li>Configure Lambda: Create Lambda function normally, add trigger: <strong>SQS</strong>, select your SQS.</li>
-        <li>Lambda code:</li>
-    </ol>
-    <pre>def lambda_handler(event, context):
-    for record in event['Records']:
-        print("Message received from SQS:")
-        print(record['body'])
-    
-    return {
-        'statusCode': 200,
-        'body': 'Message processed successfully'
-    }</pre>
-    <ol start="9">
-        <li>Deploy, upload something in S3, and this will trigger everything. Watch logs in Lambda.</li>
-    </ol>
+  ];
 
-    <hr>
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Product Listing&lt;/h1&gt;
 
-    <h2>Exp-9 &mdash; ELB + Auto Scaling</h2>
+      {products.map((product) =&gt; (
+        &lt;ProductCard
+          key={product.id}
+          name={product.name}
+          price={product.price}
+          category={product.category}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
 
-    <h3>Part 1: EC2 + Load Balancer</h3>
-    <h4>1) Create EC2 Instances (2 servers)</h4>
-    <p>Launch instance &rarr; Amazon Linux &rarr; t2.micro</p>
-    <p>Security group:</p>
-    <ul>
-        <li>SSH (22) &rarr; your IP</li>
-        <li>HTTP (80) &rarr; anywhere</li>
-    </ul>
-    <p>Run in both:</p>
-    <pre>sudo su
-yum update -y
-yum install httpd -y
-systemctl start httpd
-systemctl enable httpd</pre>
-    <p><strong>Server 1:</strong></p>
-    <pre>echo "This is Server 1" > /var/www/html/index.html</pre>
-    <p><strong>Server 2:</strong></p>
-    <pre>echo "This is Server 2" > /var/www/html/index.html</pre>
-    <p>Result: 2 working web servers</p>
+export default App;</code></pre>
+            <p class="note">The list is rendered with map() and the Buy Now button shows an alert.</p>
+        </section>
 
-    <h4>2) Create Load Balancer</h4>
-    <ol>
-        <li>Security group: EC2 &rarr; Security Groups &rarr; Create Security Group, allow HTTP, HTTPS traffic.</li>
-        <li>Create Load Balancer: EC2 &rarr; Load Balancers &rarr; Create Load Balancer &rarr; <strong>Application Load Balancer</strong> (everything default), select all AZ, attach the above security group.</li>
-        <li>Create new target group: Put name, other default.</li>
-        <li>Register targets: Attach the instances.</li>
-        <li>Add the target group to load balancer.</li>
-    </ol>
+        <section class="experiment">
+            <div class="tag">Experiment 3</div>
+            <h2>Inventory Management Using React Hooks</h2>
+            <div class="file-name">App.js</div>
+            <pre><code>import React, { useState, useMemo } from "react";
 
-    <h4>3) Test</h4>
-    <ul>
-        <li>Copy DNS of LB</li>
-        <li>Open in browser</li>
-        <li>Refresh &rarr; alternates servers</li>
-        <li>Output: traffic distributed</li>
-    </ul>
+export default function App() {
+  const [products] = useState([
+    { name: "Pen", qty: 10, price: 20 },
+    { name: "Book", qty: 5, price: 100 }
+  ]);
 
-    <h3>Part 2: Auto Scaling</h3>
-    <h4>1) Create AMI</h4>
-    <ul>
-        <li>EC2 &rarr; Select instance</li>
-        <li>Actions &rarr; Image &rarr; Create Image</li>
-        <li>Name: anything</li>
-        <li>This is your base template</li>
-    </ul>
+  const [search, setSearch] = useState("");
+  const [dark, setDark] = useState(false);
 
-    <h4>2) Create Launch Template</h4>
-    <p>EC2 &rarr; Launch Templates &rarr; Create</p>
-    <p>Config:</p>
-    <ul>
-        <li>AMI &rarr; select created AMI</li>
-        <li>Instance type &rarr; t2.micro</li>
-        <li>Key pair &rarr; select</li>
-        <li>Security group &rarr; allow HTTP</li>
-    </ul>
+  const totalValue = useMemo(() =&gt; {
+    return products.reduce(
+      (sum, item) =&gt; sum + item.qty * item.price,
+      0
+    );
+  }, [products]);
 
-    <h4>3) Create Auto Scaling Group</h4>
-    <p>EC2 &rarr; Auto Scaling Groups &rarr; Create</p>
-    <p>Config:</p>
-    <ul>
-        <li>Launch template &rarr; select</li>
-        <li>VPC + subnets &rarr; select all</li>
-    </ul>
+  const filtered = products.filter((p) =&gt;
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-    <h4>4) Attach Load Balancer</h4>
-    <p>Select:</p>
-    <ul>
-        <li>Existing Load Balancer</li>
-        <li>Target group</li>
-    </ul>
-    <p>Health check:</p>
-    <ul>
-        <li>Type &rarr; HTTP</li>
-        <li>Grace period &rarr; 300 sec</li>
-    </ul>
+  return (
+    &lt;div
+      style={{
+        backgroundColor: dark ? "#222" : "#fff",
+        color: dark ? "#fff" : "#000",
+        minHeight: "100vh",
+        padding: "20px"
+      }}
+    &gt;
+      &lt;h2&gt;Inventory Management&lt;/h2&gt;
 
-    <h4>5) Set Capacity</h4>
-    <ul>
-        <li>Desired: 2</li>
-        <li>Min: 1</li>
-        <li>Max: 4</li>
-    </ul>
+      &lt;button onClick={() =&gt; setDark(!dark)}&gt;
+        Toggle Theme
+      &lt;/button&gt;
 
-    <h4>6) Create ASG</h4>
-    <p>Review &rarr; Create</p>
+      &lt;br /&gt;
+      &lt;br /&gt;
 
-    <h3>Part 3: Testing</h3>
-    <h4>1) Check Instances</h4>
-    <ul>
-        <li>Target group &rarr; healthy instances</li>
-        <li>ASG &rarr; instances running</li>
-    </ul>
+      &lt;input
+        type="text"
+        placeholder="Search Product"
+        value={search}
+        onChange={(e) =&gt; setSearch(e.target.value)}
+      /&gt;
 
-    <h4>2) Test Auto Healing</h4>
-    <ul>
-        <li>Terminate one instance</li>
-        <li>Result: ASG launches new instance automatically</li>
-    </ul>
+      &lt;ul&gt;
+        {filtered.map((p, index) =&gt; (
+          &lt;li key={index}&gt;
+            {p.name} - Qty: {p.qty} - ₹{p.price}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
 
-    <h4>3) Test Load Balancing</h4>
-    <ul>
-        <li>Open LB DNS</li>
-        <li>Refresh</li>
-    </ul>
+      &lt;h3&gt;Total Value: ₹{totalValue}&lt;/h3&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+            <p class="note">The two sample items total ₹700, and the list can be filtered by search.</p>
+        </section>
 
-    <hr>
+        <section class="experiment">
+            <div class="tag">Experiment 4</div>
+            <h2>Simple E-Commerce Application Using React Router</h2>
+            <div class="file-name">App.js</div>
+            <pre><code>import React from "react";
 
-    <h2>Exp-10 &mdash; Elastic Beanstalk</h2>
-    <ol>
-        <li>Create Elastic Beanstalk, some name.</li>
-        <li>Create environment &rarr; Web server environment.</li>
-        <li>Platform: <strong>Tomcat</strong>.</li>
-        <li>Upload WAR code from: <a href="https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/" target="_blank">https://tomcat.apache.org/tomcat-6.0-doc/appdev/sample/</a></li>
-        <li>Role: <strong>LabRole</strong>, Key pair: select.</li>
-        <li>Configure network: VPC (default), Subnets, Enable public IP.</li>
-        <li>Instance: <strong>t2.micro</strong>, Type: <strong>Load Balancer</strong>, Min: 1, Max: 2.</li>
-        <li>Create.</li>
-        <li>Open the URL (domain link).</li>
-        <li>Upload and Deploy &rarr; Upload same with different version label, and open URL again.</li>
-    </ol>
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useParams
+} from "react-router-dom";
 
-    <hr>
+function Home() {
+  return &lt;h2&gt;Home Page&lt;/h2&gt;;
+}
 
-    <h2>Exp-11 &mdash; Amazon Lex</h2>
-    <ol>
-        <li>Open Lex &rarr; Create bot &rarr; Name (everything default).</li>
-        <li>Intent &rarr; Some name &rarr; Add utterances:
-            <ul>
-                <li>I want to book a hotel</li>
-                <li>Book a room</li>
-                <li>Reserve hotel</li>
-                <li>I need a room</li>
-            </ul>
-        </li>
-        <li>Create slots:
-            <ul>
-                <li><strong>age</strong> &rarr; number &rarr; question</li>
-                <li>Advanced &rarr; Branch &rarr; if {age} &lt; 18 &rarr; message: not eligible</li>
-                <li>More slots: <strong>city</strong>, <strong>date</strong>, <strong>nights</strong></li>
-            </ul>
-        </li>
-        <li>Custom slot:
-            <ul>
-                <li>Slot types &rarr; Add slot type &rarr; Add blank slot type</li>
-                <li><strong>RoomType:</strong> single, double, suite</li>
-            </ul>
-        </li>
-        <li>Add slot <strong>RoomType</strong>, Advanced &rarr; Slot prompts &rarr; More prompt options &rarr; Add &rarr; Add card groups &rarr; button.</li>
-        <li>Initial Response:
-            <pre>Welcome to Hotel Booking! What is your name?</pre>
-        </li>
-        <li>Confirmation:
-            <pre>Do you want to confirm booking in {location} for {nights} nights?</pre>
-        </li>
-        <li>Build &rarr; Test.</li>
-    </ol>
+function Products() {
+  return &lt;h2&gt;Products Page&lt;/h2&gt;;
+}
 
-    <hr>
+function Cart() {
+  return &lt;h2&gt;Cart Page&lt;/h2&gt;;
+}
 
-    <h2>Exp-12 &mdash; Creating IAM User with Permissions</h2>
-    <ol>
-        <li>IAM &rarr; IAM users &rarr; Create &rarr; Name &rarr; Provide user access (tick).</li>
-        <li>Give credentials, Access: <strong>AmazonS3FullAccess</strong>.</li>
-        <li>Login, try creating EC2 (will not happen), create bucket.</li>
-        <li>IAM &rarr; Users &rarr; Security credentials &rarr; Create access key &rarr; CLI.</li>
-        <li>In CMD on your system:</li>
-    </ol>
-    <pre>aws configure</pre>
-    <p>Enter:</p>
-    <ul>
-        <li>Access Key ID</li>
-        <li>Secret Access Key</li>
-        <li>Default region: (e.g., ap-south-1)</li>
-        <li>Default output: json</li>
-    </ul>
-    <p>Run commands:</p>
-    <pre>aws s3 ls
-aws s3 mb s3://your-unique-bucket-name
-aws iam list-users   (won't work)</pre>
+function Contact() {
+  return &lt;h2&gt;Contact Page&lt;/h2&gt;;
+}
 
-    <hr>
+function Login() {
+  return &lt;h2&gt;Login Page&lt;/h2&gt;;
+}
 
-    <h2>Exp-13 &mdash; IAM Roles</h2>
-    <ol>
-        <li>IAM Console &rarr; Roles &rarr; Create role.</li>
-        <li>Use case: Choose <strong>EC2</strong>.</li>
-        <li>Permissions: <strong>AmazonS3FullAccess</strong>.</li>
-        <li>Name (something), Create.</li>
-        <li>Create EC2 instance normally.</li>
-        <li>Actions &rarr; Security &rarr; Modify IAM role.</li>
-        <li>Select <strong>EC2-S3-Role</strong> &rarr; Update.</li>
-        <li>Connect to EC2 and run:</li>
-    </ol>
-    <pre>aws s3 ls
-aws ec2 describe-instances   (doesn't work)</pre>
+function ProductDetails() {
+  const { id } = useParams();
 
+  return &lt;h2&gt;Product ID : {id}&lt;/h2&gt;;
+}
+
+function NotFound() {
+  return &lt;h2&gt;404 Page Not Found&lt;/h2&gt;;
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;Home&lt;/Link&gt; |{" "}
+        &lt;Link to="/products"&gt;Products&lt;/Link&gt; |{" "}
+        &lt;Link to="/cart"&gt;Cart&lt;/Link&gt; |{" "}
+        &lt;Link to="/contact"&gt;Contact&lt;/Link&gt; |{" "}
+        &lt;Link to="/login"&gt;Login&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+
+        &lt;Route
+          path="/products"
+          element={&lt;Products /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="/products/:id"
+          element={&lt;ProductDetails /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="/cart"
+          element={&lt;Cart /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="/contact"
+          element={&lt;Contact /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="/login"
+          element={&lt;Login /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="*"
+          element={&lt;NotFound /&gt;}
+        /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default App;</code></pre>
+            <p class="note">This version includes the Home, Products, Cart, Contact, Login, dynamic product route, and 404 handling.</p>
+        </section>
+
+        <section class="experiment">
+            <div class="tag">Experiment 5</div>
+            <h2>Dynamic React Form Using Configuration Object</h2>
+            <div class="file-name">App.js</div>
+            <pre><code>import React, { useState } from "react";
+
+const fields = [
+  {
+    name: "name",
+    label: "Name",
+    type: "text"
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email"
+  },
+  {
+    name: "phone",
+    label: "Phone",
+    type: "text"
+  }
+];
+
+function App() {
+  const [formData, setFormData] = useState({});
+  const [submitted, setSubmitted] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitted(formData);
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Dynamic Form&lt;/h2&gt;
+
+      &lt;form onSubmit={handleSubmit}&gt;
+        {fields.map((field) =&gt; (
+          &lt;div key={field.name}&gt;
+            &lt;label&gt;{field.label}&lt;/label&gt;
+
+            &lt;input
+              type={field.type}
+              name={field.name}
+              value={formData[field.name] || ""}
+              onChange={handleChange}
+            /&gt;
+          &lt;/div&gt;
+        ))}
+
+        &lt;button type="submit"&gt;
+          Submit
+        &lt;/button&gt;
+      &lt;/form&gt;
+
+      {submitted &amp;&amp; (
+        &lt;div&gt;
+          &lt;h3&gt;Submitted Data&lt;/h3&gt;
+
+          &lt;pre&gt;
+            {JSON.stringify(submitted, null, 2)}
+          &lt;/pre&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  );
+}
+
+export default App;</code></pre>
+            <p class="note">Inputs are generated from the fields array, and submitted values are shown below the form.</p>
+        </section>
+
+        <section class="experiment">
+            <div class="tag">Experiment 6</div>
+            <h2>React SPA with Routing and API Fetching</h2>
+            <div class="file-name">App.js</div>
+            <pre><code>import React, { useEffect, useState } from "react";
+
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
+
+function Home() {
+  return &lt;h2&gt;Home Page&lt;/h2&gt;;
+}
+
+function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) =&gt; res.json())
+      .then((data) =&gt; {
+        setUsers(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return &lt;h3&gt;Loading...&lt;/h3&gt;;
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Users List&lt;/h2&gt;
+
+      &lt;ul&gt;
+        {users.map((user) =&gt; (
+          &lt;li key={user.id}&gt;
+            {user.name}
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;nav&gt;
+        &lt;Link to="/"&gt;Home&lt;/Link&gt; |{" "}
+        &lt;Link to="/users"&gt;Users&lt;/Link&gt;
+      &lt;/nav&gt;
+
+      &lt;Routes&gt;
+        &lt;Route
+          path="/"
+          element={&lt;Home /&gt;}
+        /&gt;
+
+        &lt;Route
+          path="/users"
+          element={&lt;Users /&gt;}
+        /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}
+
+export default App;</code></pre>
+            <p class="note">The users list loads from JSONPlaceholder and shows Loading... until the request finishes.</p>
+        </section>
+    </main>
 </body>
 </html>
+
+
+
 
