@@ -494,89 +494,60 @@ export default App;</code></pre>
             <div class="tag">Experiment 6</div>
             <h2>React SPA with Routing and API Fetching</h2>
             <div class="file-name">App.js</div>
-            <pre><code>import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+            <pre><code>import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
-// ---------- Fake API (replaces https://jsonplaceholder.typicode.com/users) ----------
-const USERS_DATA = [
-  { id: 1, name: "Leanne Graham", email: "leanne@example.com", city: "Hyderabad" },
-  { id: 2, name: "Ervin Howell", email: "ervin@example.com", city: "Chennai" },
-  { id: 3, name: "Clementine Bauch", email: "clem@example.com", city: "Mumbai" },
-  { id: 4, name: "Patricia Lebsack", email: "patricia@example.com", city: "Delhi" },
-  { id: 5, name: "Chelsey Dietrich", email: "chelsey@example.com", city: "Pune" },
+const usersData = [
+  { id: 1, name: "Ravi" },
+  { id: 2, name: "Sita" },
+  { id: 3, name: "Ram" }
 ];
 
-const fetchUsers = (shouldFail = false) =&gt;
-  new Promise((resolve, reject) =&gt; {
-    setTimeout(() =&gt; {
-      shouldFail ? reject(new Error("Failed to load users")) : resolve(USERS_DATA);
-    }, 2000); // simulate 2-second network delay
-  });
-
-// ---------- Pages ----------
-const Home = () =&gt; (
-  &lt;div&gt;
-    &lt;h2&gt;Home&lt;/h2&gt;
-    &lt;p&gt;Open the Users page to see data loaded with useEffect.&lt;/p&gt;
-  &lt;/div&gt;
-);
+function Home() {
+  return &lt;h2&gt;Home Page&lt;/h2&gt;;
+}
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() =&gt; {
-    fetchUsers()
-      .then((data) =&gt; setUsers(data))
-      .catch((err) =&gt; setError(err.message))
-      .finally(() =&gt; setLoading(false));
-  }, []); // runs once when the page mounts
+    setTimeout(() =&gt; {
+      setUsers(usersData);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-  // Conditional rendering
-  if (loading) return &lt;p&gt;Loading users...&lt;/p&gt;;
-  if (error) return &lt;p style={{ color: "red" }}&gt;{error}&lt;/p&gt;;
+  if (loading) return &lt;h2&gt;Loading...&lt;/h2&gt;;
 
   return (
     &lt;div&gt;
-      &lt;h2&gt;Users&lt;/h2&gt;
-      &lt;table border="1" cellPadding="8" style={{ borderCollapse: "collapse" }}&gt;
-        &lt;thead&gt;
-          &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Email&lt;/th&gt;&lt;th&gt;City&lt;/th&gt;&lt;/tr&gt;
-        &lt;/thead&gt;
-        &lt;tbody&gt;
-          {users.map((u) =&gt; (
-            &lt;tr key={u.id}&gt;
-              &lt;td&gt;{u.id}&lt;/td&gt;&lt;td&gt;{u.name}&lt;/td&gt;&lt;td&gt;{u.email}&lt;/td&gt;&lt;td&gt;{u.city}&lt;/td&gt;
-            &lt;/tr&gt;
-          ))}
-        &lt;/tbody&gt;
-      &lt;/table&gt;
+      &lt;h2&gt;User List&lt;/h2&gt;
+      &lt;ul&gt;
+        {users.map(user =&gt; (
+          &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
     &lt;/div&gt;
   );
 }
 
-// ---------- App ----------
-export default function App() {
-  const link = ({ isActive }) =&gt; ({
-    marginRight: 15, fontWeight: isActive ? "bold" : "normal",
-  });
+function App() {
   return (
     &lt;BrowserRouter&gt;
-      &lt;nav style={{ padding: 12, background: "#eee" }}&gt;
-        &lt;NavLink to="/" style={link}&gt;Home&lt;/NavLink&gt;
-        &lt;NavLink to="/users" style={link}&gt;Users&lt;/NavLink&gt;
-      &lt;/nav&gt;
-      &lt;div style={{ padding: 20 }}&gt;
-        &lt;Routes&gt;
-          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
-          &lt;Route path="/users" element={&lt;Users /&gt;} /&gt;
-        &lt;/Routes&gt;
-      &lt;/div&gt;
+      &lt;Link to="/"&gt;Home&lt;/Link&gt;{" "}
+      &lt;Link to="/users"&gt;Users&lt;/Link&gt;
+
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/users" element={&lt;Users /&gt;} /&gt;
+      &lt;/Routes&gt;
     &lt;/BrowserRouter&gt;
   );
-}</code></pre>
-            <p class="note">The users list loads from JSONPlaceholder and shows Loading... until the request finishes.</p>
+}
+
+export default App;</code></pre>
+            <p class="note">The users list uses local sample data and shows Loading... for one second before rendering.</p>
         </section>
     </main>
 </body>
